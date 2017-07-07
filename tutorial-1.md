@@ -20,7 +20,7 @@ Once you've signed up, you'll be taken to the "Consoles" tab:
 
 <img width="500" src="/static/images/flask-tutorial-signed-in.png">
 
-You can dismiss the green welcome section at the top (use the "X" in its top right) -- everything there is accessible later from the "Help" link if you want to see it.
+You can dismiss the green welcome section at the top (use the "X" in its top right) -- everything there is accessible later from the "Help" link if you want to see it.  I do recommend you check your email and confirm your email address, though -- otherwise if you forget your password later, you won't be able to reset it.
 
 Now, click on the "Web" tab, and you'll be taken to a page where you can create a website:
 
@@ -36,8 +36,6 @@ If you decided to go for a paid account (thanks :-), then it will be a bit diffe
 
 What we're doing on this page is specifying the host name in the URL that people will enter to see your website.  Free accounts can have one website, and it must be at *yourusername*`.pythonanywhere.com`.  Paid accounts have the option of using their own custom host names in their URLs.
 
-Once a website has been created, it's on that particular host name forever.  There are easy ways to create new websites that use the same code as an existing one, so if you create a website at *yourusername*`.pythonanywhere.com` and then later want to move it to `www.yourowndomain.com` then that's pretty simple.
-
 For now, we'll stick to the free option.  If you have a free account, just click the "Next" button, and if you have a paid one, click the checkbox next to the *yourusername*`.pythonanywhere.com`, then click "Next".  This will take you on to the next page in the wizard.
 
 <img width="500" src="/static/images/flask-tutorial-create-web-app-choose-framework.png">
@@ -46,7 +44,7 @@ This page is where we select the web framework we want to use.  This tutorial is
 
 <img width="500" src="/static/images/flask-tutorial-create-web-app-choose-python-version.png">
 
-PythonAnywhere has various versions of Python installed, and each version has its associated version of Flask.  You can use different Flask versions to the ones we supply by default, but it's a little more tricky (you need to use a thing called a *virtualenv*), so for this tutorial we'll create a site using Python 3.4, with the default Flask version.  Click the option, and you'll be taken to the next page:
+PythonAnywhere has various versions of Python installed, and each version has its associated version of Flask.  You can use different Flask versions to the ones we supply by default, but it's a little more tricky (you need to use a thing called a *virtualenv*), so for this tutorial we'll create a site using Python 3.6, with the default Flask version.  Click the option, and you'll be taken to the next page:
 
 <img width="500" src="/static/images/flask-tutorial-create-web-app-choose-location.png">
 
@@ -58,7 +56,9 @@ Once you're sure you're OK with the filename, click "Next".  There will be a bri
 
 <img width="500" src="/static/images/flask-tutorial-web-app-page-initial-site.png">
 
-You can see that the host name for the site is on the left-hand side, along with the "Add a new web app" button.  If you had multiple websites in your PythonAnywhere account, they would appear there too. But the one that's currently selected is the one you just created, and if you scroll down a bit you can see all of its settings.  We'll ignore most of these for the moment.
+You can see that the host name for the site is on the left-hand side, along with the "Add a new web app" button.  If you had multiple websites in your PythonAnywhere account, they would appear there too. But the one that's currently selected is the one you just created, and if you scroll down a bit you can see all of its settings.  We'll ignore most of these for the moment, but one that is worth noting is the "Best before date" section.
+
+If you have a paid account, you won't see that -- it only applies to free accounts.  But if you have a free account, you'll see something saying that your site will be disabled on a date in three months' time.  Don't worry!  You can keep a free site up and running on PythonAnywhere for as long as you want, without having to pay us a penny.  But we do ask you to log in every now and then and click the "Run until 3 months from today" button, just so that we know you're still interested in keeping it running.
 
 Before we do any coding, let's check out the site that PythonAnywhere has generated for us by default.  Right-click the host name, just after the words "Configuration for", and select the "Open in new tab" option; this will (of course) open your site in a new tab, which is useful when you're developing -- you can keep the site open in one tab and the code and other stuff in another, so it's easier to check out the effects of the changes you make.
 
@@ -66,7 +66,7 @@ Here's what it should look like.
 
 <img width="500" src="/static/images/flask-tutorial-initial-site-content.png">
 
-OK, it's pretty simple, but it's a start.  Let's take a look at the code!  Go back to the tab showing the website configuration (keeping the one showing your site open), and click on the directory titled "Source code" under the "Code" section:
+OK, it's pretty simple, but it's a start.  Let's take a look at the code!  Go back to the tab showing the website configuration (keeping the one showing your site open), and click on the "Go to directory" link next to the "Source code" bit in the "Code" section:
 
 <img width="500" src="/static/images/flask-tutorial-source-code-link.png">
 
@@ -211,7 +211,7 @@ So let's add some code to handle the "/wibble" version.  Just put this at the bo
 
 Click the "Save" button again, then the reload button, and check out your site on the tab you kept open earlier.  Now, both `http://`*yourusername*`.pythonanywhere.com/` and `http://`*yourusername*`.pythonanywhere.com/wibble` will work, and will return different text.
 
-So that was our first change, but it was pretty pointless.  Let's use git to undo it.  Click on the PythonAnywhere logo at the top right of the editor page, and you'll be taken to the main PythonAnywhere "Consoles" list.  You'll see that under "Your consoles" there's a thing called something like "Bash console 1904962".
+So that was our first change, but it was pretty pointless.  Let's use git to undo it.  Click on the PythonAnywhere logo at the top right of the editor page, and you'll be taken to the main PythonAnywhere "Consoles" list.  You'll see that under "Your consoles" there's a thing called something like "Bash console 5676757".
 
 <img width="500" src="/static/images/flask-tutorial-consoles-list.png">
 
@@ -252,7 +252,7 @@ A web app in Flask, like most frameworks, consists of two kinds of file: source 
 
 Our website is just going to be a bunch of comments, one after another, with a text box at the bottom so that people can add new ones.  So we'll start off by writing a template that displays some dummy data, and a view in the Python code that renders (that is, displays) the template.
 
-The template first.  Click on the back button to get to your web app's source code directory listing page.  Templates, by convention, go in a subdirectory of your source code directory, inventively called `templates`.  So we can create that by typing "templates" into the "Enter new directory name" input near the top of the page, then clicking the "New" button next to it.  That will take us to the directory listing for the new directory, which of course is empty.  We'll create our template file in there; type "main_page.html" into the "Enter new file name" input, and click the "New" button next to it.  This will take you to the editor, which will of course be empty.
+The template first.  Click on the back button to get to your web app's source code directory listing page.  Templates, by convention, go in a subdirectory of your source code directory, inventively called `templates`.  So we can create that by typing "templates" into the "Enter new directory name" input near the top of the page, then clicking the "New directory" button next to it.  That will take us to the directory listing for the new directory, which of course is empty.  We'll create our template file in there; type "main_page.html" into the "Enter new file name" input, and click the "New file" button next to it.  This will take you to the editor, which will be empty.
 
 Type the following HTML into the editor:
 
@@ -585,7 +585,7 @@ Once we've extracted the comment contents from the request, we add it to the lis
 
         return redirect(url_for('index'))
 
-We just need to make one more change in our code: we've used a bunch of new Flask functions and so we need to import them.  Change
+We just need to make one more change in our code: we've used a couple of new Flask functions and so we need to import them.  Change
 
     from flask import Flask, render_template
 
@@ -703,7 +703,7 @@ So, if everything's working OK, it's probably time to commit the changes.  Over 
 
     no changes added to commit (use "git add" and/or "git commit -a")
 
-This time, just for a change, let's add our files to the list of files to commit, and commit them in one go.  This doesn't work if you've created a new file, but as we've only modified existing ones, it's an option.  We just add an `a` before the `m` in the `git commit` command to say "add files":
+This time, just for a change, let's add our files to the list of files to commit and commit them in one go.  This doesn't work if you've created a new file, but as we've only modified existing ones, it's an option.  We just add an `a` before the `m` in the `git commit` command to say "add files":
 
     git commit -am"Replaced dummy comments with some in-memory storage"
 
@@ -730,7 +730,7 @@ There are many database programs used for web apps; some examples are:
 * PostgreSQL (for historical reasons, normally just called Postgres), which runs as a server, like MySQL, and is better with larger datasets.  Growing in popularity, but needs a bit more server power to run.
 * MongoDB, which allows you to store your data in a less-structured way than SQL databases like the previous three.  Also server-based.  New, slightly oddball -- the hipster option.
 
-SQLite is pretty slow on PythonAnywhere, and doesn't scale well for larger sites anyway.  Postgres is a paid feature on PythonAnywhere because of its larger server power requirements, and we don't have built-in support for MongoDB.  So we're going to use MySQL.
+SQLite is pretty slow on PythonAnywhere, and doesn't scale well for larger sites anyway.  Postgres is a paid feature on PythonAnywhere because of its larger server power requirements, and we don't have built-in support for MongoDB.  So we're going to use MySQL, which you can use from a free PythonAnywhere account.
 
 One convenient thing about modern database programming, however, is that to a certain degree you don't need to worry about which database you're actually using.  There are database interface libraries called Object-Relational Mappers (ORMs), which make it possible (most of the time) to use the same code regardless of the underlying database.  We're going to use one called SQLAlchemy, which works well with Flask.
 
@@ -738,11 +738,11 @@ Right, enough background.  Let's create a MySQL database!  In your tab where you
 
 <img width="500" src="/static/images/flask-tutorial-databases-tab-empty.png">
 
-At the top, under "Connecting", you'll see the details you'll need to connect to the MySQL server associated with your account.  Next is a list of MySQL databases, which, as you haven't created any, is of course empty.  And at the bottom there's a space to enter a MySQL password.  The password is needed to connect to the MySQL server so that other people can't connect to your one, and initially it's unset.  Enter a new password here; make it something different to the one you use to log in to PythonAnywhere, because this database password will have to exist in your Python code (so that it can connect to your server), so it's more secure to use a different one.  Make a note of the password you've chosen, and once you've entered it twice in the appropriate fields, click the "Set MySQL password" button.  You'll come back to the "Databases" tab, but now some extra options will have appeared:
+The first thing you need to do to set up a MySQL database is specify the password you want to use when accessing it.  Enter a new password here; make it something different to the one you use to log in to PythonAnywhere, because this database password will have to exist in your Python code (so that it can connect to your server), so it's more secure to use a different one.  Make a note of the password you've chosen, and once you've entered it twice in the appropriate fields, click the "Initialize MySQL" button.  Wait for a few moments for your database to be set up, and you'll come back to the "Databases" tab, but now some extra options will have appeared:
 
 <img width="500" src="/static/images/flask-tutorial-databases-tab-after-set-password.png">
 
-So now we have a database called *yourusername*`$default`, and an option to create a database.  In general, it's good practice to have a separate database for each website you're working on to keep everything nicely separated.  Go to the "Create database" section in the middle of the page, and create one, giving it the name "comments":
+At the top, under "Connecting", you'll see the details you'll need to connect to the MySQL server associated with your account.  Next is a list of MySQL databases; one was created for you called *yourusername*`$default`, and there is also an option to create further databases.  In general, it's good practice to have a separate database for each website you're working on to keep everything nicely separated.  Go to the "Create database" section in the middle of the page, and create one, giving it the name "comments":
 
 <img width="500" src="/static/images/flask-tutorial-databases-tab-create-database.png">
 
@@ -767,6 +767,7 @@ OK, so now we have a database.  Let's add some code to connect to it!  Leave the
     )
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 You need to change the values we set for `username`, `hostname` and `databasename` to the values from the "Databases" tab, and change the `password` to the one you set there earlier.  (All of these are without the `<>` angle brackets, of course -- those are just there in the code above to highlight things you need to change.)
 
@@ -776,13 +777,15 @@ The third sets an importand database connection configuration parameter, which y
 
 *Sidebar: connection timeouts.  Opening a connection from your website code to a MySQL server takes a small amount of time.  If you opened one for every hit on your website, it would be slightly slower.  If your site was really busy, the aggregate of all of the small amounts of time opening connections could add up to quite a slowdown.  To avoid this, SQLAlchemy operates a "connection pool".  It keeps a set of connections to the database, and re-uses them.  When you want a connection, it gives you one from the pool, creating a new one if the pool is empty, and when you're done with it, the connection is returned to the pool for future reuse.  However, in order to stop people from hogging database connections, MySQL servers close unused connections after a particular amount of time.  On PythonAnywhere, this timeout is set to 300 seconds.  If your site is busy and your connections are always busy, this doesn't matter.  But if it's not, a connection in the pool might be closed by the server because it wasn't being used.  The `SQLALCHEMY_POOL_RECYCLE` variable is set to 299 to tell SQLAlchemy that it should throw away connections that haven't been used for 299 seconds, so that it doesn't give them to you and cause your code to crash because it's trying to use a connection that has already been closed by the server.*
 
+The fourth line disables a SQLAlchemy feature that we're not going to be using -- explicitly saying that we don't want to use it stops us from getting confusing warning messages later on.
+
 So that's the code that configures our database connection; now we need some code to actually connect to it!  Put this just after the code you just added:
 
     db = SQLAlchemy(app)
 
 This simply creates a SQLAlchemy object using the connections we put into the Flask app's config.  We need to add an extra import statement to the start of our code to make this work, just after the other import that imports stuff from Flask:
 
-    from flask.ext.sqlalchemy import SQLAlchemy
+    from flask_sqlalchemy import SQLAlchemy
 
 Right, we've added some code to connect to the database.  Let's sanity-check it and make sure we haven't made any silly typos; hit the button to reload your website, and refresh the page in the other tab where you're viewing it.  If all is OK, you should get a site that behaves just like it did before.  If there's a problem, Flask should tell you what it is.
 
@@ -799,7 +802,7 @@ Next, we need to add a *model*.  A model is a Python class that specifies the st
 
 An SQL database can seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll keep for housekeeping purposes later on, and a string `content`, which holds, of course, the contents of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.  I'll link to useful stuff about that at the end of this tutorial.)
 
-Now that we've defined our model, we need to get SQLAlchemy to create the database tables.  This is a one-off operation -- once we've created the database's structure, it's done.  Head over to the bash console we've been using so far for git stuff, and run `ipython3.4` to start a Python interpreter.
+Now that we've defined our model, we need to get SQLAlchemy to create the database tables.  This is a one-off operation -- once we've created the database's structure, it's done.  Save your Python file, then head over to the bash console we've been using so far for git stuff, and run `ipython3.6` to start a Python interpreter.
 
 Once it's running, you need to import the database manager from your code:
 
@@ -905,6 +908,4 @@ If you'd like to study further, and find out more about Flask, I recommend these
 
 If you're thinking of developing this app further and adding new stuff to the database, you'll need to learn about database migrations; [here are the docs](https://flask-migrate.readthedocs.org/en/latest/)
 
-If you think we should do a follow-up to this tutorial, just post a comment with your suggestion below :-)
-
-Thanks for reading!
+If you think we should do a follow-up to this tutorial, just post a comment with your suggestion below.  Thanks for reading!
