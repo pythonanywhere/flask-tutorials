@@ -1,4 +1,5 @@
-Database-backed Flask development on PythonAnywhere: database migrations and virtualenvs
+Database-backed Flask development on PythonAnywhere: part 2
+
 
 Welcome to the second part in our tutorial for getting started with Flask development on PythonAnywhere!
 This is a continuation of [our previous tutorial]((https://blog.pythonanywhere.com/121/)), so if you haven't
@@ -15,7 +16,7 @@ PythonAnywhere.
 Obviously this was a rather limited website!  It would be nice if we could add some features -- and in this
 tutorial, that's exactly what we'll do.   Our original site used the slightly ugly password protection
 built in to PythonAnywhere; this means that in order for people to post on it, they had to enter a username
-and password -- but it was the same username and password for everyone, which isn't terribly secure.  So we're
+and password -- but it was the same username and password for everyone, which isn't terribly secure.   We're
 going to add our own login page -- which means that we can also store a record of who posted what, and when.
 
 Here's what it will look like:
@@ -25,15 +26,20 @@ IMAGE HERE -- login page
 IMAGE HERE -- main page
 
 Adding these new features will require us to do a bit of work in the background; our existing site works
-fine for what it is, but it's not very extensible, so we'll fix that as we go.   Let's get started!
+fine for what it is, but it's not very extensible, so we'll fix that as we go.   You'll learn about the
+Flask-Login extension, database migrations, and virtualenvs -- all very useful stuff :-)
+
+Let's get started!
+
 
 ## Handling login and logout
 
 Just like we did before, we'll start off by designing how the site should work.   We already have a
 page that lists all of the comments, and allows people to add new comments.   But we don't have a login page,
-so let's write one.   Log in to PythonAnywhere, then go to the "Files" tab, and then down into the "mysite"
-directory that contains your code, and then to the "templates" subdirectory.   Create a file called "login_page.html"
-with the following content:
+so let's start by writing one.   Log in to PythonAnywhere, then go to the "Files" tab, and then down into the "mysite"
+directory that contains your code, and then to the "templates" subdirectory.   Enter the filename "login_page.html"
+into the "new file" input, then click the "new file button".   You'll find yourself in the (hopefully very familiar) editor,
+where you should enter the following HTML template code:
 
     <html>
         <head>
@@ -82,26 +88,43 @@ with the following content:
         </body>
     </html>
 
-This should be pretty clear -- most of it is boilerplate, and the form inside the row (inside the container inside the body)
-is a simple login form with username and password fields.   Note that the `type` of the password field is "password" --
+This should be pretty clear, certainly if you're familiar with HTML -- most of it is boilerplate, and the form inside
+the row (inside the container inside the body)
+is a simple login form with username and password fields, each of which has a label, and a "Log in" button to submit the form.
+Note that the `type` of the password field is "password" --
 this is to do the normal trick of making it display asterisks when people type into it.
 
-So, we have an HTML template that will display our login page.   Let's add the Flask code to use it!   Keep the
-browser tab showing the template file open -- we'll come back to it in a bit -- and in a new browser tab, load up the
-`flask_app.py` file, and add a new view like this:
+So, we have an HTML template that will display our login page.   Let's add some basic Flask code to display it so that we can
+see how it looks.  Keep the
+browser tab showing the template file open -- we'll come back to it in a bit -- and right-click on "mysite" in the breadcrumbs
+near the top of the page, and select the option to open it in a new browser tab.  Go to that tab, then click on the
+`flask_app.py` file, which contains your Python code.   At the end of the file, add a new view like this:
 
     @app.route("/login/")
     def login():
         return render_template("login_page.html")
 
-Reload the app from the "Web" tab or by using the button at the top right of the page, then go to your site.
-You'll get the page with the list of comments, of course -- so next, edit the URL in the browser's address bar
-and add "/login/" to the end.   Hit return, and we get the login page.   So far, so good!  But if you
-enter a username and a password into the form, you'll get a "Method not allowed" error.  Hopefully that will be
-familiar from the first tutorial; our form is sending a `POST` request when the "Log in" button is clicked, and our
-view doesn't handle that yet.
+Reload the app the button at the top right of the page -- in case you've forgotten, it looks like this:
 
-We've reached a state where our site is doing something new, so let's use git to take a checkpoint.   In a new
+IMAGE HERE
+
+Once that's done, go to your site in yet another browser tab -- remember, it's at *yourpythonanywhereusername*`.pythonanywhere.com.
+You should now have three tabs open -- the template, the Python code, and your site.
+
+On your site, you'll see what you did before -- the page with the list of comments.  So next, edit the URL in the browser's address bar
+and add "/login/" to the end.   Hit return, and we get the login page:
+
+IMAGE HERE
+
+So far, so good!  But if you enter a username and a password into the form, you'll get a "Method not allowed" error:
+
+IMAGE HERE
+
+Hopefully that will be
+familiar from the first tutorial; our form is sending a `POST` request when the "Log in" button is clicked, and our
+view doesn't handle that  method yet.
+
+We've reached a state where our site is doing something new, so let's use git to take a checkpoint.   In yet another new
 browser tab, open up a Bash console from the PythonAnywhere "Consoles" tab.   Change your working directory
 to `mysite`, which is where all of our code is, by running this command:
 
@@ -115,18 +138,23 @@ We have a new template file, which we need to add to the git repository:
 
     git add templates/login_page.html
 
-...and some changes to `flask_app.py`:
+...and some changes to `flask_app.py`; run this to see them:
+
+    git diff
+
+....then this to add them to the list of changes to commit.
 
     git add flask_app.py
 
-And now we've added the files, we commit those changes to make a coherent single change:
+And now we've added the files, we commit those changes -- remember, this is to batch everything together to make a coherent
+single change:
 
     git commit -m"First cut at the login page"
 
 Right, let's add the basics of the login functionality.   Initially, we won't actually distinguish between logged-in
 and non-logged-in users on the main page; we'll just change this page so that if someone enters the username "admin" and the password
 "secret", they get sent back to the front page -- but if they enter anything else, they'll get sent back to the login
-page.   Change the view so that it looks like this:
+page, and shown an error message saying that the credentials were incorrect.   Change the `login` view so that it looks like this:
 
     @app.route("/login/", methods=["GET", "POST"])
     def login():
@@ -140,6 +168,11 @@ page.   Change the view so that it looks like this:
 
 Let's break that down:
 
+    @app.route("/login/", methods=["GET", "POST"])
+
+Just like last time around, we need to tell the view that as well as handling simple viewing of the page (requests using the "GET" method),
+it should handle submitted form data (requests using the "POST" method).   This solves the "Method not allowed" error when data is POSTed.
+
         if request.method == "GET":
             return render_template("login_page.html", error=False)
 
@@ -150,14 +183,14 @@ setting that variable to False.
             return render_template("login_page.html", error=True)
 
 Because we got past the first step in the function, we now know that this request is the result of someone
-trying to log in.   If either the username they specified isn't "admin", or the password isn't "secret",
+trying to log in, a POST request.   If either the username they specified isn't "admin", or the password isn't "secret",
 we render the login page again, but this time we set the `error` variable to True.
 
         return redirect(url_for('index'))
 
 Otherwise, we just send them back to the index page -- the main page of the app.
 
-Before we try this out, head back to the tab you kept open with the template in it, and add this to the login page,
+Before we try this out, head back to the tab you kept open with the login page template in it, and add this
 just before the form:
 
     {% if error %}
@@ -167,26 +200,36 @@ just before the form:
     {% endif %}
 
 Reload the website, then visit the login page again.  Try entering an incorrect username and password, and click
-the "Log in" button -- you'll get a yellow warning at the top of the page.   Now try logging in with the username
+the "Log in" button -- you'll be taken back to the login page, with a yellow warning at the top.   Now try logging in with the username
 "admin" and the password "secret": you'll be taken to the main front page.
 
-That's actually quite a big step forward: now we have a login page that is checking credentials, which gives us
+Even though we're not actually really logging in to anything, that's actually quite a big step forward: now we have
+a login page that is checking credentials, which gives us
 the beginnings of some security.   Let's get that committed: go to the tab where you have the bash console running,
-and use "git add" and "git commit".
+and use "git status", "git diff", "git add" and "git commit" to make sure that then changes -- both in the template
+and in the Python code -- are stored away.
 
 So, the next step is to actually change the behaviour of the site based on whether the user is logged in
-or not.   For this, we're going to use an extension to the Flask web framework called
-"<a href="https://flask-login.readthedocs.io/en/latest/">flask-login</a>".  Like "flask-sqlalchemy", which
-you'll remember we're using to talk to the database, "flask-login" is not part of Flask itself, but provides
+or not.   After all, that's what logging into something is actually meant to do!  We'll allow people who are
+not logged in to see the site, but not change it.  Only people who are logged in will be able to leave
+comments.
+
+For this, we're going to use an extension to the Flask web framework called
+"<a href="https://flask-login.readthedocs.io/en/latest/">Flask-Login</a>".  Like Flask-Sqlalchemy, which
+you'll remember we're using to talk to the database, Flask-Login is not part of Flask itself, but provides
 useful functionality that many sites find useful.  Conveniently enough, it is
 already installed on PythonAnywhere, so we can just use it without having to install anything.
 
-Go to the browser tab where you have the `flask_app.py` file open, and add an import line like this next to the
+Go to the browser tab where you have the `flask_app.py` file open, and add an import line like this after the
 one for flask-sqlalchemy:
 
     from flask_login import login_user, LoginManager, UserMixin
 
-Next, just after the line where we set up the database, which looks like this:
+This will tell Python which bits of Flask-Login we need to use.   Note that although the name of the extension is
+Flask-Login with a dash, the thing you import from uses an underscore -- this is because Python treats dashes as minus
+signs for arithmetic, so you can't put them inside identifiers.
+
+Next, just after the line that we already have where we set up the database, which looks like this:
 
     db = SQLAlchemy(app)
 
@@ -199,18 +242,18 @@ Next, just after the line where we set up the database, which looks like this:
 The first of those lines is a placeholder -- you should replace the words "something only you know" with a
 reasonably long (say, 20 characters) completely random string (letting a cat walk across the keyboard works
 well, but if you can't find a nearby cat, just hammer randomly on some keys).   This is because Flask-Login is going to use
-some cryptographic components of Flask, and those need to have a secret key to operate.   The next two lines
+some of the cryptographic components of Flask, and those need to have a secret key to operate.   The next two lines
 just create an instance of the Flask-Login system and associate it with your Flask app.
 
 So now we've imported and are using the login system; the next step is to tell it about some users.
-The first thing is to define a class to describe what users look like; we'll have an instance of this
+The first thing is to define a Python class to describe what users look like; we'll have an instance of this
 for each user.   Add it just before the `Comment` class.
 
     class User(UserMixin):
 
-        def __init__(self, username, password):
+        def __init__(self, username, password_hash):
             self.username = username
-            self.password_hash = generate_password_hash(password)
+            self.password_hash = password_hash
 
 
         def check_password(self, password):
@@ -221,21 +264,24 @@ for each user.   Add it just before the `Comment` class.
             return self.username
 
 This class is a subclass of `UserMixin`, which is provided by Flask-Login.  This is because the extension is
-very flexible, and allows you to set things up in all kinds of weird and interesting ways -- but if all you want
-is the same kind of concept of a "user" that most websites have, it provides the `UserMixin` class to inherit
-sensible behaviour from.  We specify that our users have usernames and passwords, and that they have a unique
+very flexible, and allows you to set things up in all kinds of weird and interesting ways, with all kinds of weird
+and interesting definitions ot "user" -- but if all you want is the sane, normal kind of concept of a "user" that
+most websites have, it provides the `UserMixin` class to inherit
+sensible behaviour from.  We specify that our users have usernames and password hashes, and that they have a unique
 identifier that is simply the username.
 
-There's something that's well worth drawing your attention to in that code; the "password_hash" stuff.  Storing
+There's something that's well worth drawing your attention to in that last bit; the "password hash" stuff, as opposed to
+a simple "password".  Storing
 passwords in plain text is a really bad idea; if a hacker gets in to your system, they get a list of usernames
 and passwords.  If those username/password combinations are used on other sites, the users are in trouble.
 
-So what we do is "hash" and "salt" the passwords, which means that the passwords themselves aren't going to be stored in
+Without going into too much detail, what we do is "hash" and "salt" the passwords, which means that the passwords
+themselves aren't going to be stored in
 the `User` objects -- instead, a cryptographic string that pretty-much uniquely identifies the password will be.
 For more details, there's
-[an excellent article on hashing and salting in the Guardian](https://www.theguardian.com/technology/2016/dec/15/passwords-hacking-hashing-salting-sha-2)
+[an excellent article from the Guardian on hashing and salting](https://www.theguardian.com/technology/2016/dec/15/passwords-hacking-hashing-salting-sha-2)
 
-Having added that, we need to import the two hash functions that we're using:
+Having added that, we need to import the hash functions, plus another one that we're about to use:
 
     from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -244,9 +290,9 @@ a website would keep its list of users in the database -- and we'll change thing
 now, we'll just keep them in our code.  Add this just after the `User` class:
 
     all_users = {
-        "admin": User("admin", "secret"),
-        "bob": User("bob", "less-secret"),
-        "caroline": User("caroline", "completely-secret"),
+        "admin": User("admin", generate_password_hash("secret")),
+        "bob": User("bob", generate_password_hash(password)"less-secret")),
+        "caroline": User("caroline", generate_password_hash(password)"completely-secret")),
     }
 
 (Of course, having done all of that clever stuff so that we don't have the passwords in plaintext, we're
@@ -255,14 +301,15 @@ tutorial!)
 
 So that's a dictonary that maps from the username to the user object for three users.   Why a dictionary rather
 than a simple list?   It's because Flask-Login needs to be provided with a function that, given a unique ID
-(as returned by the `get_id` method on a `User` object) returns the associated `User` object.  Let's add that,
-just after the dictionary:
+(as returned by the `get_id` method on a `User` object) returns the associated `User` object.  Which means we
+need an easy way, given a username, to return the associated user -- Python's dictionary class is ideal for that,
+so let's add the function, just after the dictionary:
 
     @login_manager.user_loader
     def load_user(user_id):
         return all_users.get(user_id)
 
-Now we've set things up so that Flask-Login is properly configured, so now let's use it.   Change the `login`
+Now we've set things up so that Flask-Login is properly configured, so let's use it.   Change the `login`
 view so that it looks like this:
 
     @app.route("/login/", methods=["GET", "POST"])
@@ -273,15 +320,16 @@ view so that it looks like this:
         username = request.form["username"]
         if username not in all_users:
             return render_template("login_page.html", error=True)
-
         user = all_users[username]
+
         if not user.check_password(request.form["password"]):
             return render_template("login_page.html", error=True)
 
         login_user(user)
         return redirect(url_for('index'))
 
-So now we check whether a login attempt is for a known user, and if it isn't, we dump them back on the login page
+So now -- if it's not a "GET" request -- we check whether the login attempt is for a known user, and if it isn't,
+we dump them back on the login page
 with an error.  If it is a real user, we check the password, and if it's wrong, we also error out.   Finally,
 if it's a real user, we call Flask-Login's `login_user` function to stash away the fact that they're successfully
 logged in.
@@ -291,11 +339,13 @@ current list of users.   Reload the site using the button to the top right of th
 URL again.   Enter an invalid username/password; you'll get a login error.   Now try logging in as user "bob" with
 password "less-secret" -- it'll take you to the front page.
 
-So everything is working reasonably well -- time to "git add" and "git commit" just so that we have something
+So everything is working reasonably well -- time to "git add" and "git commit" in the Bash console, just so that we have something
 to go back to if we break stuff.
 
 Our next step is to actually use this login stuff to protect our site.  First, load up the template for the main
-page.   Near the bottom, we have the HTML that defines the input field where people can add comments:
+page -- not the login page template that we've been editing so far.
+Near the bottom, we have the HTML that defines the input field where people can add comments; it looks like
+this:
 
     <div class="row">
         <form action="." method="POST">
@@ -305,8 +355,10 @@ page.   Near the bottom, we have the HTML that defines the input field where peo
     </div>
 
 What we want to do is hide that if the person viewing is not logged in.   This is really easy to do; Flask-Login
-makes a variable called `current_user` available in our templates.  If a user is logged in, the field
-`is_authenticated` on that variable is set to False.   So, we can do this:
+makes an object called `current_user` available in our templates.  If a user is logged in, the field
+`is_authenticated` on that object is set to True.  (Specifically, this is because the value of `current_user` is the User
+object defined in our code representing the logged-in user, and `UserMixin` provides a field called `is_authenticated` that is always True.)
+So, we can do this:
 
     {% if current_user.is_authenticated %}
         <div class="row">
@@ -317,10 +369,13 @@ makes a variable called `current_user` available in our templates.  If a user is
         </div>
     {% endif %}
 
-Save that change, reload the site, and go to the main page, and...
+The only changes there are the `{% if... %}` and `{% endif %}` lines.
+Save the file, reload the site, and go to the main page, hit refresh, and you'll see that...
 
-Ah.  We're already logged in, after our test of the login page a few minutes ago -- so we still see
-the form to enter a comment.   Not a great test!  We need to somehow log out.  So let's write the
+IMAGE HERE
+
+Ah.  We're already logged in, after our test of the login page a few minutes ago.   Because we show the comment form to people
+who are logged in, we still see it, which is not a great test of our code to hide it!  We need to somehow log out.  So let's write the
 view for that.
 
 *(An aside: some people might have noticed that the fact that we're logged in has persisted even though
@@ -338,7 +393,9 @@ Go to the browser tab where you have `flask_app.py`, and add a new view:
 
 ...and add `logout_user` and `login_required` to the list of things that we're importing from `flask_login` near the top of the
 file.  Note the new decorator on the view, `login_required` -- this is provided by Flask-Login and allows you
-to protect views so that they can only be accessed by logged-in users.
+to protect views so that they can only be accessed by logged-in users.   The lines inside the code, as you can
+probably guess, tell Flask-Login to note that the user has been logged out, then send them back to the front page
+of the site.
 
 It would be nice to provide an easy way to log in and log out from the front page of the site, so go back
 to that template, and change the `nav` section at the top so that it has a "log in" link if the user is not logged
@@ -372,25 +429,26 @@ refresh button, and you should see a "Log out" link near the top right:
 IMAGE HERE
 
 Click that, and you'll be taken to the front page again -- but the place to enter a comment will have
-disappeared!
+disappeared, and the link near the top right will have changed to say "Log in".
 
 IMAGE HERE
 
 Click the "Log in" link, and you'll be taken to the login page, where you can log in as admin, bob or caroline,
-using the passwords we defined in the code.   When you do that, you'll be taken to the main page, and you'll be able
+using the passwords we defined in the code (maybe trying some invalid logins first if you really want to test it).
+When you do that, you'll be taken to the main page, and you'll be able
 to add comments again.
 
 That's definitely worthy of a commit!  We have a secure-looking site.  Head over to the bash console, `git add`,
 `git commit`, you know the drill by now :-)
 
 Now, you might have noticed that I said "a secure-*looking* site" just then.  It does look secure, but it actually
-isn't.  Although we don't display anything on the web page to allow someone to add a comment to your site, there's
+isn't.  Although we don't display anything on the web page to allow someone who isn't logged in to add a comment to your site, there's
 nothing stopping people from sending carefully-crafted requests that look as if they're coming from the web
 page down to your Flask server and adding comments.  You can get a feel for the problem by:
 
 * Going to the front page, and logging in (if you're not already logged in)
-* Right-click on the "Log out" link, and open it in a new tab.  You're now logged out.
-* Type a comment into the still-visible "enter a comment" field, and submit it.
+* Right-click on the "Log out" link, and open it in a new tab.  You're now logged out -- check the new tab to confirm.
+* In the *old* tab, type a comment into the still-visible "enter a comment" field, and submit it.
 
 You'll see that the comment was added, even though you were logged out.  A hacker who wanted to put stuff on your
 page wouldn't need even be logged in in the first place; they could use a tool like `cURL` to send POST requests
@@ -401,29 +459,30 @@ explaining some of the details, in the context of getting early access to Twitte
 
 What we need to do is add some server-side validation -- that is, when we receive a POST request that is trying
 to add a comment to our database, we should check first whether or not the user is logged in.  This is a simple
-change to the `index` view in `flask_app.py` -- just add this, just before the line that creates a new `Comment`
+change to the `index` view in `flask_app.py` -- just add this, just *before* the line that creates a new `Comment`
 object:
 
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
 
 ...and also add `current_user` to the set of things we import from `flask_login` at the top of the file.  Reload
-the website, and try going through those three steps that showed the problem before.  This time, when you try
+the website, and try going through those three steps that showed the problem before -- log in, log out in a separate tab,
+try to submit a comment from the original tab.  This time, when you try
 to post a comment as a non-logged-in user, it'll just take you back to the main page without storing the comment.
 Phew!
 
-Now we have a site that actually is secure :-)  Commit those changes, and -- if you like -- switch off the password
+Now we have a site that actually *is* secure :-)  Commit those changes, and -- if you like -- switch off the password
 protection at the bottom of the "Web" tab inside PythonAnywhere -- we have something better now, so we don't need it.
 
 
 ## Adding timestamps
 
 So, we can log in and log out.   Our goal for this tutorial is to be able to say who posted comments, and when.
-The timestamp is the easiest one of these, so let's add that first!
+The timestamp is the easiest one of these, so let's add that first.
 
-As always, we start off by designing how it will look; initially pass the current time to the template
+As always, we start off by designing how it will look -- initially by passing the current time to the template
 and rendering that, along with the "name" anonymous, for every comment -- just so we can get a feel for what it will look
-like.   To do that, add these lines to the top of the file to import the `datetime` class from the Python standard library:
+like.   To do that, add these lines to the top of the Python file to import the `datetime` class from the Python standard library:
 
     from datetime import datetime
 
@@ -437,13 +496,14 @@ like.   To do that, add these lines to the top of the file to import the `dateti
 
 Now, reload the web app and take a look at the site -- it won't have changed.  This is a good thing!
 
-Next, in a new browser tab, open the template file.  Right now, we have a `for` loop and inside it, for each comment, we have this HTML:
+Next, we'll change the main template file.  Right now, we have a `for` loop and inside it, for each comment, we have this HTML
+to show the comment:
 
                 <div class="row">
                     {{ comment.content }}
                 </div>
 
-Replace it with this code:
+Replace it with this code, which adds a simple timestamp:
 
                 <div class="row" style="margin-bottom: 1ex">
                     <div>
@@ -463,27 +523,35 @@ just swap around the `%d` and the `%B` in the template where it says
 
     {{ timestamp.strftime("%A, %d %B %Y at %H:%M") }}
 
-What that line means is, call the `strftime` method on the `timestamp` object that we're passing in to the
-template.  You can read more about what all of the different options for the `%` bits in there mean on
+What that line means is "call the `strftime` method on the `timestamp` object that we're passing in to the
+template".  You can read more about what all of the different options for the `%` bits in there mean on
 [this Python documentation page](https://docs.python.org/3/library/time.html#time.strftime).
 
 Once you have everything looking the way you want, let's take a checkpoint.  Just to keep things interesting,
 do a "git diff" to see the changes -- then the normal "git add" / "git commit".
 
-## Virtualenvs
 
-Now it's time to write the code to actually save timestamps -- we'll do commenter names later.  This is a
+## Migrations part one -- starting with a virtualenv
+
+Now it's time to write the code to actually save a timestamp for each comment -- we'll do commenter names later.  This is a
 little tricky.  Right now, we have a number of comments on our site.  Those comments don't have timestamps,
 and even worse, they're stored in a database table that doesn't have a column where we could store timestamps.
-Now, of course, for a website we're just building to play with like this one, we could just delete everything
-and build the database up from scratch, this time with a timestamp field.   But for a real site that would
-be a bit destructive.
+Remember, a database is a bit like a spreadsheet.  There are a number of "tables", just like a spreadsheet has
+a number of sheets, and each table is made up of rows and columns.   Each row represents one object -- that is,
+each row is one comment for our existing site.   It's easy to add new comments by adding new rows.
+But the columns are fixed -- our current comments table has just one column, the content of a comment.
+We want to add a new column.
 
-What we need to do is change the database in a controlled way.   We want to be able to add a new timestamp
-field to our `Comment` class, which is as easy as you'd expect, but we also want to be able to change the
+Now, of course, for a website we're just building to play with like this one, we could just delete everything
+and build the database up from scratch, this time with a timestamp column.   But for a real site that would
+be a bit destructive -- and anyway, this is a tutorial, so we really should use best practices :-)
+
+What we need to do is change the database structure -- the definition of the set of columns that the comments table has
+-- in a controlled way.   We want to be able to add a new timestamp
+field to our `Comment` class, which is simple enough -- we just change the code -- but we also want to be able to change the
 database to add the new column, putting a sane value in there for the existing comments.
 
-It is actually possible to do that by starting a MySQL console and changing things by hand, but it's a lot
+It is actually possible to do that by starting a MySQL console and changing things by hand, using the `ALTER DATABASE` command, but it's a lot
 of hassle -- and doesn't work very well when you're making regular changes as you extend your site.   So
 we're going to use something called *migrations*.   A migration is, conceptually, a change to a database's
 structure packaged up as a small Python file that knows how to make the change.
@@ -497,6 +565,11 @@ The way we're going to do that is to use a thing called a "virtualenv"; there ar
 but [virtualenvs are the best in the long run](https://help.pythonanywhere.com/pages/VirtualenvsExplained).
 They're basically private stores inside your PythonAnywhere account of the specific modules (Flask and its extensions)
 that your site depends on -- check out the link above if you want the details of how they work.
+
+So, we want to add a timestamp.   That means we need to add a migration.   That means that we need to install
+a new extension.   And that means that we need to create a virtualenv.   This kind of cascade happens frequently
+enough when coding that it's got a name: [yak shaving](https://en.wiktionary.org/wiki/yak_shaving).   Let's
+strop our razor and get to it.
 
 In your bash console, and run the following command:
 
@@ -519,18 +592,20 @@ But now it will look like this:
     (flask-tutorial) 17:42 ~/mysite (master)$
 
 When you're in a virtualenv, the prompt shows you its name at the start.  This is very useful if you have
-lots of them, of course.
+lots of them, of course.   If you want to do something with your virtualenv later, like install more packages,
+then you need to make sure it's active -- the prompt helps you see easily if it is.
 
 Now, our next step is to install some packages using `pip`.   Initially, we'll just get our virtualenv to contain
-the packages we need right not -- not the migration stuff we're about to use.  There are three that we need to install:
+the packages we're already using -- not the migration stuff we're about to use.  Virtualenv contain no packages
+by default, so there are three that we need to install:
 Flask itself, the Flask-SQLAlchemy plugin, and mysqlconnector, a library that helps SQLAlchemy talk to MySQL.
 They also have various dependencies -- Flask depends on a templating library called Jinja, for example -- but
-you don't need to worry about those -- `pip` will automatically install them for you.   So all you need to do
+you don't need to worry about those -- `pip` will automatically install them for you.   All you need to do
 is run this command:
 
     pip install flask flask-sqlalchemy mysql-connector-python
 
-That will take a little while to run.  It will pull down all of the packages from PyPI, along with their
+That will take a little while to run.  It will pull down all of the packages, along with their
 dependencies, and install them into your virtualenv.   Put your feet up for a bit, or make a cup of tea.
 
 When it's finished and you get the bash prompt back, you can see what it's installed by running the
@@ -548,7 +623,7 @@ When it's finished and you get the bash prompt back, you can see what it's insta
     Werkzeug==0.12.2
 
 You can see that it's showing you not only the packages you installed, but also the dependencies, and
-it's showing the version number for each one.
+it's showing the version number for each one after a double-equals sign.
 
 Just out of interest, let's compare that to the set of packages that you had installed when you weren't inside your
 virtualenv.   Run the following command to exit the env:
@@ -574,13 +649,13 @@ section with the header "Virtualenv":
 IMAGE HERE
 
 Click on the link to edit the field, and enter the name of the virtualenv you created earlier,
-`flask-tutorial`.  The system will think for a second, and then fill in the full path to the virtualenv.
+`flask-tutorial`.  The system will think for a second, and then fill in a full path to the virtualenv.
 A virtualenv is just a directory in your private file storage -- but because you're using virtualenvwrapper, it's in
 a specific directory that PythonAnywhere knows about, so you can just specify the name.
 
 Now that we've made a change on the "Web" tab, the next step is to reload the website to make that change
 take effect.  Scroll back up to the top of the page, and click the green "Reload" button (which is the stand-alone
-equivalent of the reload button in the editor that we were using in the last part of the tutorial).  Wait for the
+equivalent of the reload button in the editor that we were using before).  Wait for the
 spinner to disappear, and then right-click your site's name to visit it.  If all went well, it should display
 just like it did before, showing all of the comments that were already there.  Hooray!
 
@@ -591,7 +666,7 @@ how coding works ;-)
 
 It's good practice to keep a list of the external packages that your code depends on inside your Git repository.
 The tradition is to use a file called `requirements.txt`.   In order to avoid having to type everything in, let's
-use a bash command.  Go back to your bash console.
+use a bash command, so go back to the bash console.
 
 We want to create a file called `requirements.txt` that lists the packages we use.  And we already know
 there's a command `pip freeze` that will produce that list.  So we can run the command and tell it to write its
@@ -601,14 +676,14 @@ output to a file:
 
 If all goes well, that command will just send you back to the prompt.   Now, open another tab by right-clicking
 the PythonAnywhere logo, and go to the "Files" tab, then down into the `mysite` directory.  You'll see the file
-`requirements.txt` -- click on it to load it into the editor.
+`requirements.txt` -- click on it to load it into the editor.  You should see the same list of dependencies you
+did before.
 
 What we want to do here is remove the first line, the one that says `-f /usr/share/pip-wheels`; it's not actually
 one of our requirements, it's just some extra junk that pip has printed.  So remove that line, then save the file.
 
-Now let's get the requirements file into our repository.  Back in the bash console, if you run `git status` you'll
-see that `requirements.txt` shows up in red as an "untracked file" -- remember, git needs to be explicitly told that
-it should track new files.   So, use `git add` to add it to the list of tracked files, then `git commit` to take a
+Now let's get the requirements file into our repository.  Back in the bash console, run `git status` -- you'll see
+that `requirements.txt` is in red because it's untracked.  `git add` it, then `git commit` to take a
 checkpoint and add it to the repository:
 
 IMAGE HERE
@@ -616,7 +691,8 @@ IMAGE HERE
 
 ## Migrations
 
-OK, so now we have a virtualenv and we want to install the Flask database migration extension into it.  Logically enough,
+OK, so now we have a virtualenv; the yak we're shaving is lathered up.  We want to install the Flask database
+migration extension into it.  Logically enough,
 it's called [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/).  To install it, go to your
 bash console, and run this:
 
@@ -629,7 +705,7 @@ Once it's all installed, we need to configure our code to use it.  We do this *b
 the database, because we're going to have to run some commands first in order to let the system know what the
 current state of the database is before we start adding stuff.   When you want to add a new thing to the database,
 you add the thing you want to the Python code, then run a command to create a new migration that will
-add it to the database.  The command works out what to do by comparing what it sees in the database with
+make the appropriate changes to the database's structure.  The command works out what to do by comparing what it sees in the database with
 what the code seems to expect, then generating a migration that changes the database in the appropriate way.
 If that all sounds a bit hard to get your head around, don't worry -- it'll become clearer once we've worked
 through the example.
@@ -649,7 +725,7 @@ to its connection to the SQLAlchemy database connection.
 Save the file, then go back to your bash console.
 
 Our next step is to create a directory where the migrations are going to live.  Remember, each migration is a
-small Python file that defines how to make a change to the database.  We need to have somewhere to store them,
+small Python file that defines how to make a change to the database's structure.  We need to have somewhere to store them,
 so run these two commands:
 
     export FLASK_APP=flask_app.py
@@ -659,7 +735,7 @@ It will print out a few lines saying that it's creating directories and files, w
 
 IMAGE HERE
 
-We can ignore the warning for now.  Let's take a closer look at those two commands.   The second one first:
+We can ignore the warning for now.  Let's take a closer look at those two commands.   We'll start with the second one:
 
     flask db init
 
@@ -692,6 +768,10 @@ an empty database to the state it was in before we started using Flask-Migrate. 
 fiddly with Flask-Migrate when you have a database with some structure already, because it generates
 each migration by looking at what's in the database, then looking at the code, and comparing the two.  Right
 now the code and the database match up OK, so it won't know what to do.
+
+*(Of course, we wouldn't have this problem if we'd used Flask-Migrate from the start -- but if you're feeling a
+little overwhelmed now, just imagine what it would have been like it all of this has been in the first part of the
+tutorial!   Don't worry, it gets easier.)*
 
 However, there is a way -- what we want to do is tell it to compare the current code with an empty database, and
 generate a migration that would create the appropriate structure in that database.
@@ -727,13 +807,16 @@ change it back to saying
 
 ...then save the file.
 
-So now we have a migration file (with a randomly-generated name) that contains Python code that knows how
-to create our database structure -- not the contents! -- from scratch.  You may find it interesting to take a
-look at the file -- it was the last thing printed out by the `flask db migrate` command.
+So now we have a migration file that contains Python code that knows how
+to create our database structure from scratch.   It's worth noting that the file *only* contains information about
+the database structure -- that is, there's a table called `comments` that has certain specific columns.  It doesn't
+contain the comments themselves.  You may find it interesting to take a
+look at the file -- it was the last thing printed out by the `flask db migrate` command, and you can
+load it up into the editor via the "Files" tab.
 
 There is one final step, though.   Flask-Migrate keeps track of which migrations have been applied to your
 database -- it does this (in a kind of recursive, Inception-like manner) by keeping data in a database table in your
-database to say what migration the database last had applied to it.
+database to say what migration the database last had applied to it.  Got that?  ;-)
 
 What we need to do is tell Flask-migrate "the stuff you see in the database right now is exactly what
 correponds to the most recent migration you've generated -- don't worry about trying to add anything for it".
@@ -744,7 +827,7 @@ The command for this is pretty simple, if somewhat violent-sounding:
 Now, hopefully everything is in sync.  We can check that in two ways:
 
 Firstly, we know that right now, we have one migration, which knows how to create the database structure that
-is needed by the code that we currently have.   And we know that the database structure should match that exactly.
+is needed by the code that we currently have.   And we know that the structure of our existing database should match that exactly.
 So if we ask Flask-Migrate to create a new migration, it should work out that nothing has changed in the code
 to require a migration, so it should come back to us saying "I don't need to do anything".   Let's try:
 
@@ -770,7 +853,7 @@ So there's single a `version_num` column, and one row with a hexadecimal number 
 mean?   Click back to your browser tab where you have the bash console, and look back a few commands to where you
 ran the first `flask db migrate` command -- the one that generated the initial migration, not the one that did nothing.
 You'll see that the file it created had a name with `_.py` at the end.   Before the `_.py`, there will be the same
-hexadecimal number.   Likewise, when we ran `flack db stamp head`, it printed out a message to the effect that
+hexadecimal number.   Likewise, when we ran `flask db stamp head`, it printed out a message to the effect that
 it was running `stamp_revision` to that same number.
 
 Basically, Flask-Migrate is tracking different migrations by giving them random hexadecimal
@@ -784,7 +867,7 @@ the fact that we now depend on Flask-Migrate.    Once again, run
 
     pip freeze > requirements.txt
 
-...in your bash console, then edit the requirements file to remove the junk line from the start.
+...in your bash console, then edit the requirements file to remove the junk line from the start, and save it.
 
 Next, commit the changes into git.  We need to add all of the new migration files as well as our changes to
 the Flask app, so don't forget to `git add`:
@@ -804,11 +887,12 @@ definition.  Right now we have this:
         id = db.Column(db.Integer, primary_key=True)
         content = db.Column(db.String(4096))
 
-...so just add a new line after the definition of the `content` field like this:
+...so just add a new line after the definition of the `content` field like this, to say that we need a new
+column called "posted", which is a date/time object, with a default of "now":
 
         posted = db.Column(db.DateTime, default=datetime.now)
 
-What that's doing is probably pretty obvious, but sharp-eyed readers might spot that although the `default` is
+How that works is probably pretty obvious, but sharp-eyed readers might spot that although the `default` is
 being set to the method `utcnow` on the `datetime` class, there are no brackets after it to call that method.
 That's deliberate!  By leaving out the brackets, we're saying that the default isn't the *result* of calling the
 `now` function -- it's the function itself.   This is because all code that we put into a class like this is run
@@ -836,13 +920,13 @@ You'll see output like this:
 
 IMAGE HERE
 
-Now let's change our code to use the new column in the database.   Go to the page where you
+Now let's change our code to use the new column in the database.   Go to the tab where you
 have the Flask code, and change the line that renders the template back to one that just passes the
 list of comments through:
 
     return render_template("main_page.html", comments=Comment.query.all())
 
-Next, in the template, change the code that displays the timestamp so that it extracts it from
+Next, in the main template, change the code that displays the timestamp so that it extracts it from
 the comment object, by replacing this:
 
                         <small>Posted {{ timestamp.strftime("%A, %d %B %Y at %H:%M") }} by anonymous</small>
@@ -869,7 +953,9 @@ you add one, it will have the timestamp (in the "Universal" UTC timezone) set co
 IMAGE HERE
 
 We've successfully added a new field to our comments, with a sensible value for the pre-existing
-data.  It's `git commit` time!   Over in the bash console. run
+data.  Yes, that yak is now fully shaved.
+
+It's `git commit` time.  Over in the bash console. run
 
     git status
 
@@ -890,8 +976,7 @@ all been staged, then
 ...to commit.
 
 
-## Adding the commenter field
-
+## Adding the commenter field: moving the users to the database
 
 This is the last step; we want to store who it was that made each comment.   Now, we could cheat --
 it would be really easy to add a string column to the database, and copy the username of the currently
@@ -901,7 +986,7 @@ code; like I said earlier, users should be kept in the database -- and if there 
 in the database, then it makes sense if each comment has a reference to the user that created it, surely :-)
 
 So let's get our users into the DB.   The first step is to change our user class from being a normal
-Python class (which happens to inherit from the Flask-Login `UserMixin` class to being one that
+Python class (which happens to inherit from the Flask-Login `UserMixin` class, to being one that
 Flask-SQLAlchemy can deal with.   Firstly, change the class definition from
 
     class User(UserMixin):
@@ -913,7 +998,8 @@ to
 This means that a `User` inherits not only the Flask-Login stuff that allows you to use it with that
 package, but also the SQLAlchemy database stuff.   Now, because it's meant to be stored in the database,
 we can't just specify the fields it contains in the `__init__` function; we need to add proper database
-stuff for them (and a primary key for the database's internal use), and specify what the table is called:
+stuff for them (and a primary key for the database's internal use), and specify what the table is called.
+Underneath the `class` line, add this:
 
     __tablename__ = "users"
 
@@ -923,19 +1009,19 @@ stuff for them (and a primary key for the database's internal use), and specify 
 
 We can also get rid of the `__init__` function -- just delete this bit:
 
-    def __init__(self, username, password):
+    def __init__(self, username, password_hash):
         self.username = username
-        self.password_hash = generate_password_hash(password)
-
-...which means that you no longer need to import `generate_password_hash` at the top of the file.
+        self.password_hash = password_hash
 
 We should also get rid of our naughty, insecure list of users with plaintext passwords -- delete this bit:
 
     all_users = {
-        "admin": User("admin", "secret"),
-        "bob": User("bob", "less-secret"),
-        "caroline": User("caroline", "completely-secret"),
+        "admin": User("admin", generate_password_hash("secret")),
+        "bob": User("bob", generate_password_hash("less-secret")),
+        "caroline": User("caroline", generate_password_hash("completely-secret")),
     }
+
+...which means that you no longer need to import `generate_password_hash` at the top of the file.
 
 The `load_user` function needs to be changed to check the database:
 
@@ -952,9 +1038,7 @@ have
     username = request.form["username"]
     if username not in all_users:
         return render_template("login_page.html", error=True)
-
     user = all_users[username]
-
 
 ...we should do this:
 
@@ -990,11 +1074,11 @@ Next, import the password-hashing function that we were previously using in the 
 
 Finally, add the users you want, using commands like the ones below but with different passwords:
 
-    admin = User(username="admin", password_hash=generate_password_hash("secret"))
+    admin = User(username="admin", password_hash=generate_password_hash("new-secret"))
     db.session.add(admin)
-    bob = User(username="bob", password_hash=generate_password_hash("less-secret"))
+    bob = User(username="bob", password_hash=generate_password_hash("super-secret"))
     db.session.add(bob)
-    caroline = User(username="caroline", password_hash=generate_password_hash("completely-secret"))
+    caroline = User(username="caroline", password_hash=generate_password_hash("8fwe5jYCE98lXl0ZovYW"))
     db.session.add(caroline)
     db.session.commit()
 
@@ -1006,6 +1090,8 @@ log in, you'll need to use the new passwords.   Our users are now stored in the 
 Let's checkpoint -- `git status` to see what there is to add -- it should be a new migration file and
 some changes to `flask_app.py` -- `git add` to add them, and `git commit` to finish off.
 
+## Adding the commenter field: storing the association
+
 The final step is to set up an association between comments and users.  This needs two fields to
 be added to the `Comment` class:
 
@@ -1013,18 +1099,19 @@ be added to the `Comment` class:
     commenter = db.relationship('User', foreign_keys=commenter_id)
 
 The first of these says that `Comment` objects have a field called `commenter_id`, which is the
-database ID of the commenter.  The second sets up a special field on `Comment` so that if we just
-ask for `comment.commenter`, it will look up the user by the ID in `commenter_id`.
+database ID of the commenter.  (Technically, this kind of relationship between two tables in a database is
+called a "foreign key", as you can see in the code.)  The second sets up a special field on `Comment` so that if we just
+ask for `comment.commenter`, it will look up the user by the ID in `commenter_id`, and give us that user.
 
 Save the file, then head over to the bash console, generate the migration, and upgrade the database:
 
 IMAGE HERE
 
-Now we want to save the commenter when the comment is first created; where we currently have
+Now we want to save the commenter when the comment is first created; in the Python code, where we currently have
 
     comment = Comment(content=request.form["contents"])
 
-...we should put this code:
+...we should put this:
 
     comment = Comment(content=request.form["contents"], commenter=current_user)
 
@@ -1045,9 +1132,10 @@ bit in the comment rows with this:
 
 Reload the site once again from the "Web" tab, and visit it.   You'll see that all of the existing comments
 are now showing up as having been posted by "Anonymous Coward".   Add a new one -- and you'll see that
-the username is stored :-)
+the username that you're currently logged in as is stored :-)
 
-All fairly easy, right?   Setting up the virtualenv and Flask-Migrate did take a bit of time and effort
+All fairly easy, right?  Well, hopefully not horrendously difficult.  Setting up the virtualenv and
+Flask-Migrate did take a bit of time and effort
 (you can probably see why we didn't include them in the first tutorial -- it's too much to dump on someone
 when they're a complete beginner), but it does pay off quickly.
 
@@ -1060,9 +1148,6 @@ IMAGE SHOWING TRIUMPHAL FINAL COMMIT
 That's it for this tutorial.   We hope you've found it useful, and if there's anything that confused you,
 or you encountered any errors, please do leave a comment below and we'll help you out.
 
-One final thing -- many thank to Miguel Grinberg for creating Flask-Migrate, and in particular for
+One final thing -- many many thanks to Miguel Grinberg for creating Flask-Migrate, and in particular for
 [helping out](https://github.com/miguelgrinberg/Flask-Migrate/issues/31#issuecomment-320246309)
 so quickly when we were trying to discover how to get it to work with an existing database.
-
-
-
