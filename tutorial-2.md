@@ -9,7 +9,7 @@ a page, all of those comments being stored in a database:
 
 <img width="500" src="/static/images/flask-tutorial-final-result.png">
 
-It was made up of two files; a Python one which controlled what it did, and a template one that controlled
+It was made up of two files; a Python file which controlled what it did, and a template file that controlled
 how it was displayed.  All of our code was under source-code control, and it was running as a website on
 PythonAnywhere.
 
@@ -26,19 +26,19 @@ IMAGE HERE -- login page
 IMAGE HERE -- main page
 
 Adding these new features will require us to do a bit of work in the background; our existing site works
-fine for what it is, but it's not very extensible, so we'll fix that as we go.   You'll learn about the
-Flask-Login extension, database migrations, and virtualenvs -- all very useful stuff :-)
+fine for what it is, but it's not very extensible, and we'll fix that as we go.   You'll learn about the
+Flask-Login extension, database migrations, and virtualenvs -- all very useful stuff.
 
 Let's get started!
 
 
-## Handling login and logout
+## Handling login and logout: the basics
 
-Just like we did before, we'll start off by designing how the site should work.   We already have a
+Just like we did before, we'll start off by designing how the site should look.   We already have a
 page that lists all of the comments, and allows people to add new comments.   But we don't have a login page,
 so let's start by writing one.   Log in to PythonAnywhere, then go to the "Files" tab, and then down into the "mysite"
 directory that contains your code, and then to the "templates" subdirectory.   Enter the filename "login_page.html"
-into the "new file" input, then click the "new file button".   You'll find yourself in the (hopefully very familiar) editor,
+into the "new file" input, then click the "new file" button.   You'll find yourself in the (hopefully very familiar) editor,
 where you should enter the following HTML template code:
 
     <html>
@@ -88,7 +88,8 @@ where you should enter the following HTML template code:
         </body>
     </html>
 
-This should be pretty clear, certainly if you're familiar with HTML -- most of it is boilerplate, and the form inside
+This should be pretty clear -- like the template from the first part of the tutorial, most of it is boilerplate to make it look similar to the
+existing front page, and the form inside
 the row (inside the container inside the body)
 is a simple login form with username and password fields, each of which has a label, and a "Log in" button to submit the form.
 Note that the `type` of the password field is "password" --
@@ -104,9 +105,9 @@ near the top of the page, and select the option to open it in a new browser tab.
     def login():
         return render_template("login_page.html")
 
-Reload the app the button at the top right of the page -- in case you've forgotten, it looks like this:
+Save the file, then reload the website using the button at the top right of the page -- in case you've forgotten, it looks like this:
 
-IMAGE HERE
+<img src="/static/images/flask-tutorial-reld-button.png">
 
 Once that's done, go to your site in yet another browser tab -- remember, it's at *yourpythonanywhereusername*`.pythonanywhere.com.
 You should now have three tabs open -- the template, the Python code, and your site.
@@ -114,19 +115,26 @@ You should now have three tabs open -- the template, the Python code, and your s
 On your site, you'll see what you did before -- the page with the list of comments.  So next, edit the URL in the browser's address bar
 and add "/login/" to the end.   Hit return, and we get the login page:
 
-IMAGE HERE
+<img src="/static/images/flask-tutorial-login-page-initial.png">
 
 So far, so good!  But if you enter a username and a password into the form, you'll get a "Method not allowed" error:
 
-IMAGE HERE
+<img width="500" src="/static/images/flask-tutorial-method-not-allowed.png">
 
 Hopefully that will be
 familiar from the first tutorial; our form is sending a `POST` request when the "Log in" button is clicked, and our
 view doesn't handle that  method yet.
 
 We've reached a state where our site is doing something new, so let's use git to take a checkpoint.   In yet another new
-browser tab, open up a Bash console from the PythonAnywhere "Consoles" tab.   Change your working directory
-to `mysite`, which is where all of our code is, by running this command:
+browser tab, open up a new Bash console from the PythonAnywhere "Consoles" tab.
+
+<img width="500" src="/static/images/flask-tutorial-new-console-links.png">
+
+(If you're using a free account and you
+have two consoles open from going through the tutorial previously, won't be able to open a new one, so you should close
+the old ones using the "X"s next to their names, so that you can start with a completely fresh console.)
+
+In the new console, change your working directory to `mysite`, which is where all of our code is, by running this command:
 
     cd mysite
 
