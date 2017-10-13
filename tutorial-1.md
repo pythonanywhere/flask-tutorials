@@ -686,7 +686,7 @@ Template:
                 <div class="row">
                     <form action="." method="POST">
                         <textarea class="form-control" name="contents" placeholder="Enter a comment"></textarea>
-                        <input type="submit" value="Post comment">
+                        <input type="submit" class="btn btn-success" value="Post comment">
                     </form>
                 </div>
 
