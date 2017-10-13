@@ -1,5 +1,9 @@
-Database-backed Flask development on PythonAnywhere: part 2
-
+<style>
+.jab-post img {
+    border: 2px solid #eeeeee;
+    padding: 5px;
+}
+</style>
 
 Welcome to the second part in our tutorial for getting started with Flask development on PythonAnywhere!
 This is a continuation of [our previous tutorial]((https://blog.pythonanywhere.com/121/)), so if you haven't
