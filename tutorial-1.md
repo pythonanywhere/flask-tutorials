@@ -440,6 +440,10 @@ Also add the same to the `<div>` that contains the `<form>`.
 
 For the `<textarea>` tag, add `class="form-control"`.
 
+And finally, add a class to the button so that it looks like this:
+
+    <input type="submit" class="btn btn-success" value="Post comment">
+
 Go to the tab showing your page, and refresh -- it should look like this:
 
 <img width="500" src="/static/images/flask-tutorial-app-with-dummy-content-styled.png">
@@ -490,7 +494,7 @@ If it looks weird and ugly (or, at least, weirder and more ugly than that screen
                 <div class="row">
                     <form action="." method="POST">
                         <textarea class="form-control" name="contents" placeholder="Enter a comment"></textarea>
-                        <input type="submit" value="Post comment">
+                        <input type="submit" class="btn btn-success" value="Post comment">
                     </form>
                 </div>
 
