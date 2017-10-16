@@ -1247,8 +1247,21 @@ So, there's just one more thing to do:
 
 ## That's all, folks!
 
-That's it for this tutorial.   We hope you've found it useful, and if there's anything that confused you,
-or you encountered any errors, please do leave a comment below and we'll help you out.
+That's it for this tutorial.   We've taken our original Flask app, a basic list of comments entered by
+site visitors, which had no real security beyond
+a single username/password combination to log in, and we've turned it into something with a list
+of users stored in a database, and a proper login/logout system.   With each comment, we store the time it was
+posted, and who posted it.   Along the way, we've explored Flask-Login, Flask-Migrate, database migrations
+generally, and virtualenvs.   And, of course, we've kept up our good practices with using git to store
+all changes so that we know what the history of our code is, and we can go back to a last working state
+if we break stuff.
+
+You're now ready to start coding proper Flask apps -- congratulations :-)
+
+We hope you've found this tutorial useful, and if there's anything that confused you,
+or you encountered any errors, please do leave a comment below and we'll help you out.   Thank you
+very much for reading!
+
 
 ### Acknowledgements
 
