@@ -285,8 +285,12 @@ This class is a subclass of `UserMixin`, which is provided by Flask-Login.  This
 very flexible, and allows you to set things up in all kinds of weird and interesting ways, with all kinds of weird
 and interesting definitions ot "user" -- but if all you want is the sane, normal concept of a "user" that
 most websites have, it provides the `UserMixin` class to inherit
-sensible behaviour from.  We specify that our users have usernames and password hashes, and that they have a unique
-identifier that is simply the username.
+sensible behaviour from.
+
+We specify that our users have usernames and password hashes, which are passed in to our
+`__init__` method and stored on the object,  we have a `check_password` method that, given a password entered by someone
+when they are logging in, returns `True` if it's the right one for the user, and `False` if not, and we have a
+`get_id` method, which Flask-Login requires to return a unique identifier for the user -- we just use the username.
 
 There's something that's well worth drawing your attention to in that last bit; the "password hash" stuff, as opposed to
 a simple "password".  Storing
@@ -499,6 +503,7 @@ but it's the security that you build into your Flask views that matters.
 
 Commit those changes, and -- if you like -- switch off the password
 protection at the bottom of the "Web" tab inside PythonAnywhere -- we have something better now, so we don't need it.
+You'll need to reload the website using the green button once you've switched it off.
 
 
 ## Adding timestamps
@@ -588,7 +593,7 @@ structure packaged up as a small Python file that knows how to make the change.
 
 Just like there is Flask-SQLAlchemy to interface with the database, and Flask-Login to handle logins, there's
 a Flask extension that knows how to do migrations for us.   One problem, though -- it's not installed on
-PythonAnywhere by default.   So we're going to need to install a new module.
+PythonAnywhere by default.   So we're going to need to install a new package.
 
 The way we're going to do that is to use a thing called a "virtualenv"; there are
 [a couple of ways to install packages on PythonAnywhere](https://help.pythonanywhere.com/pages/InstallingNewModules),
@@ -744,7 +749,7 @@ the database, because we're going to have to run some commands first in order to
 current state of the database is before we start adding stuff.
 
 When you want to add a new thing to the database,
-you add the thing you want to the Python code, then run a command to create a new migration that will
+you add the thing you want to the Python code, then run a command to create a new migration -- a generated Python file that will
 make the appropriate changes to the database's structure.  The command works out what to do by comparing what it sees in the database with
 what the code seems to expect, then generating a migration that changes the database in the appropriate way.
 If that all sounds a bit hard to get your head around, don't worry -- it'll become clearer once we've worked
@@ -804,7 +809,8 @@ OK, so we have our directory set up for migrations.
 
 The next step is to create an "inital migration".   Because each migration -- each change that is made to the
 database -- is represented by some Python code, we need to have an initial one that represents how to get from
-an empty database to the state it was in before we started using Flask-Migrate.   This is actually a little
+an empty database to the state it was in before we started using Flask-Migrate -- that is, the state that it is
+currently in with the existing `comments` table with its two columns.   This is actually a little
 fiddly with Flask-Migrate when you have a database with some structure already, because it generates
 each migration by looking at what's in the database, then looking at the code, and comparing the two.  Right
 now the code and the database match up OK, so it won't know what to do.
@@ -907,7 +913,8 @@ Now, hopefully everything is in sync.  We can check that in two ways:
 Firstly, we know that right now, we have one migration, which knows how to create the database structure that
 is needed by the code that we currently have.   And we know that the structure of our existing database should match that exactly.
 So if we ask Flask-Migrate to create a new migration, it should work out that nothing has changed in the code
-to require a migration, so it should come back to us saying "I don't need to do anything".   Let's try:
+to require a migration, so it should come back to us saying "I don't need to do anything".   Let's try,
+by running `flask db migrate` again:
 
 <img width="500" src="/static/images/flask-tutorial-no-changes-in-schema-detected.png">
 
@@ -937,6 +944,10 @@ it was running `stamp_revision` to that same number.
 Basically, Flask-Migrate is tracking different migrations by giving them random hexadecimal
 numbers as names, and then is storing them in files that contain that number, and storing the number in the database
 to keep track of which ones it has applied.
+
+Understanding database migrations is hard, and there aren't many good explanations of it out there.  Hopefully that all
+made things reasonably clear, but if you have any questions, please leave a comment below and we'll try to clear things
+up -- and to improve this explanation if it turns out we've missed out something important!
 
 OK, so now we have migrations working.  Once again, we've changed nothing visible -- but we're in the right place
 to make the next step forward.   As always, let's save a checkpoint.   There are a couple of things we need to
@@ -972,7 +983,8 @@ was created.
 
         posted = db.Column(db.DateTime, default=datetime.now)
 
-How that works is probably pretty obvious,  Let's make the change to the database structure needed to support it.  Back in our
+Hopefully that's pretty self-explanatory :-)   Save the file, and now let's make the change to the database
+structure needed to support our new field in its own column.  Back in our
 bash console, once again run the command to generate a migration:
 
     flask db migrate
@@ -994,7 +1006,7 @@ that we've run that migration:
 <img width="500" src="/static/images/flask-tutorial-comments-table-after-add-timestamp.png">
 
 Now let's change our code to use the new column that we've added.   Go to the tab where you
-have the Flask code, and change the line that renders the template back to the line we had earlier,
+have the Flask code, and change the line in the `index` view that renders the template back to the code we had earlier,
 which just passes the list of comments through and doesn't pass in a datetime:
 
     return render_template("main_page.html", comments=Comment.query.all())
@@ -1073,7 +1085,7 @@ to
 
 This means that a `User` inherits not only the Flask-Login stuff that allows you to use it with that
 package, but also the SQLAlchemy database stuff.   Now, because it's meant to be stored in the database,
-we can't just specify the fields it contains in the `__init__` function; we need to add proper database
+we can't just specify the two fields it contains (`username` and `password_hash`) in the `__init__` function; we need to add proper database
 stuff for them (and a primary key for the database's internal use), and specify what the table is called.
 Underneath the `class` line, add this:
 
@@ -1139,7 +1151,7 @@ will create a whole new table for the users.   Head over to the Bash console, th
     flask db upgrade
 
 Over in the MySQL console, run `show tables;` to see that there really is a new table called `users`, and
-`describe table;` to look at what columns it has.   You can also run `select * from users;` to see what's in
+`describe users;` to look at what columns it has.   You can also run `select * from users;` to see what's in
 it -- of course, it's empty right now.
 
 Now let's add our users back in.  Instead of putting them in code (where their passwords are
@@ -1198,7 +1210,7 @@ Now we want to save the commenter when the comment is first created; in the Pyth
 
     comment = Comment(content=request.form["contents"])
 
-...we should put this:
+...in the `index` view, we should put this:
 
     comment = Comment(content=request.form["contents"], commenter=current_user)
 
