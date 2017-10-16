@@ -1258,9 +1258,16 @@ if we break stuff.
 
 You're now ready to start coding proper Flask apps -- congratulations :-)
 
+If you'd like to study further, and find out more about Flask, I recommend these tutorials:
+
+ * [The official Flask tutorial](http://flask.pocoo.org/docs/0.10/tutorial/)
+ * [The Flask Mega-tutorial](http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
+
 We hope you've found this tutorial useful, and if there's anything that confused you,
-or you encountered any errors, please do leave a comment below and we'll help you out.   Thank you
-very much for reading!
+or you encountered any errors, please do leave a comment below and we'll help you out.   And likewise,
+if you think we should do a follow-up to this tutorial, just post a comment with your suggestion below.
+
+Thank you very much for reading!
 
 
 ### Acknowledgements

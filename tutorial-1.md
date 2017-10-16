@@ -804,7 +804,8 @@ Next, we need to add a *model*.  A model is a Python class that specifies the st
         id = db.Column(db.Integer, primary_key=True)
         content = db.Column(db.String(4096))
 
-An SQL database can seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll keep for housekeeping purposes later on, and a string `content`, which holds, of course, the contents of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.  I'll link to useful stuff about that at the end of this tutorial.)
+An SQL database can seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll keep for housekeeping purposes later on, and a string `content`, which holds, of course, the contents of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.
+[The second part of our tutorial](https://blog.pythonanywhere.com/158/) covers that.)
 
 Now that we've defined our model, we need to get SQLAlchemy to create the database tables.  This is a one-off operation -- once we've created the database's structure, it's done.  Save your Python file, then head over to the bash console we've been using so far for git stuff, and run `ipython3.6` to start a Python interpreter.
 
@@ -905,11 +906,7 @@ You've built a simple database-backed Flask website on PythonAnywhere.
 
 I hope it all went smoothly for you, and if you had any problems, just post a comment below!
 
-If you'd like to study further, and find out more about Flask, I recommend these tutorials:
+If you're thinking of developing this app further, you can
+[check out the second part of our Flask tutorial here](https://blog.pythonanywhere.com/158/).
 
- * [The official Flask tutorial](http://flask.pocoo.org/docs/0.10/tutorial/)
- * [The Flask Mega-tutorial](http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
-
-If you're thinking of developing this app further and adding new stuff to the database, you'll need to learn about database migrations; [here are the docs](https://flask-migrate.readthedocs.org/en/latest/)
-
-If you think we should do a follow-up to this tutorial, just post a comment with your suggestion below.  Thanks for reading!
+Thanks for reading!
