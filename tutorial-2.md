@@ -6,7 +6,7 @@
 </style>
 
 Welcome to the second part in our tutorial for getting started with Flask development on PythonAnywhere!
-This is a continuation of [our previous tutorial]((https://blog.pythonanywhere.com/121/)), so if you haven't
+This is a continuation of [our previous tutorial](https://blog.pythonanywhere.com/121/), so if you haven't
 been through it, you should do that first.  In particular, this tutorial will assume that you're starting
 with the code that you had at the end of the last one: a simple website that allowed you to post comments on
 a page, all of those comments being stored in a database:
