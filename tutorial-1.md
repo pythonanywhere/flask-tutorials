@@ -21,7 +21,7 @@ the tour so that you can learn how the site works -- it'll only take a minute or
 
 <img width="500" src="/static/images/flask-tutorial-signed-in.png">
 
-At the end of the tour you'll be presented with some options to "learn more".  You can just iht "End tour" here,
+At the end of the tour you'll be presented with some options to "learn more".  You can just click "End tour" here,
 because this tutorial will tell you all you need to know.
 
 <img width="500" src="/static/images/flask-tutorial-tour-learn-more.png">
@@ -418,17 +418,17 @@ Save the file, then go to the tab that's showing your site, and hit the page ref
 Let's improve things a bit more.  In the template editor tab, add this at the start of the "Body" section:
 
     <nav class="navbar navbar-inverse">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">My scratchpad</a>
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">My scratchpad</a>
+            </div>
         </div>
-      </div>
     </nav>
 
 
