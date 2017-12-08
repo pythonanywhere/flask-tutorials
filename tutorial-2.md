@@ -40,7 +40,7 @@ Let's get started!
 
 Just like we did before, we'll start off by designing how the site should look.   We already have a
 page that lists all of the comments, and allows people to add new comments.   But we don't have a login page,
-so let's start by writing one.   Log in to PythonAnywhere, then go to the "Files" tab, and then down into the "mysite"
+so let's start by writing one.   Log in to PythonAnywhere, then go to the "Files" page near the top right, and then down into the "mysite"
 directory that contains your code, and then to the "templates" subdirectory.   Enter the filename "login_page.html"
 into the "new file" input, then click the "new file" button.   You'll find yourself in the (hopefully very familiar) editor,
 where you should enter the following HTML template code:
@@ -58,17 +58,17 @@ where you should enter the following HTML template code:
 
         <body>
             <nav class="navbar navbar-inverse">
-              <div class="container">
-                <div class="navbar-header">
-                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                  </button>
-                  <a class="navbar-brand" href="#">My scratchpad: login page</a>
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">My scratchpad: login page</a>
+                    </div>
                 </div>
-              </div>
             </nav>
 
             <div class="container">
@@ -130,7 +130,7 @@ familiar from the first tutorial; our form is sending a `POST` request when the 
 view doesn't handle that  method yet.
 
 We've reached a state where our site is doing something new, so let's use git to take a checkpoint.   In yet another new
-browser tab, open up a new Bash console from the PythonAnywhere "Consoles" tab.
+browser tab, go to the dashboard, click on "Consoles" near the top right, and open up a new Bash console.
 
 <img width="500" src="/static/images/flask-tutorial-new-console-links.png">
 
@@ -461,6 +461,221 @@ using the passwords we defined in the code (maybe trying some invalid logins fir
 When you do that, you'll be taken to the main page, and you'll be able
 to add comments again.
 
+As always, if it's not working, try to debug it -- it's the best way to learn!  If you're getting server error
+messages, take a look at the error log -- there's a link on the "Web" page inside PythonAnywhere:
+
+<img width="500" src="/static/images/flask-tutorial-web-page-log-links.png">
+
+Inside the error log, the most recent error message will be at the bottom.
+
+If you can't get it to work, then here's the code that you should have now for you to copy/paste:
+
+The Python code:
+
+    from flask import Flask, redirect, render_template, request, url_for
+    from flask_sqlalchemy import SQLAlchemy
+    from flask_login import login_required, login_user, LoginManager, logout_user, UserMixin
+    from werkzeug.security import check_password_hash, generate_password_hash
+
+    app = Flask(__name__)
+    app.config["DEBUG"] = True
+
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+        username="flasksimpletutor",
+        password="mysql123",
+        hostname="flasksimpletutorial.mysql.pythonanywhere-services.com",
+        databasename="flasksimpletutor$comments",
+    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+    app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db = SQLAlchemy(app)
+
+    app.secret_key = "something random"
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+
+    class User(UserMixin):
+
+        def __init__(self, username, password_hash):
+            self.username = username
+            self.password_hash = password_hash
+
+
+        def check_password(self, password):
+            return check_password_hash(self.password_hash, password)
+
+
+        def get_id(self):
+            return self.username
+
+    all_users = {
+        "admin": User("admin", generate_password_hash("secret")),
+        "bob": User("bob", generate_password_hash("less-secret")),
+        "caroline": User("caroline", generate_password_hash("completely-secret")),
+    }
+
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return all_users.get(user_id)
+
+
+    class Comment(db.Model):
+
+        __tablename__ = "comments"
+
+        id = db.Column(db.Integer, primary_key=True)
+        content = db.Column(db.String(4096))
+
+
+    @app.route("/", methods=["GET", "POST"])
+    def index():
+        if request.method == "GET":
+            return render_template("main_page.html", comments=Comment.query.all())
+
+        comment = Comment(content=request.form["contents"])
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for('index'))
+
+
+
+    @app.route("/login/", methods=["GET", "POST"])
+    def login():
+        if request.method == "GET":
+            return render_template("login_page.html", error=False)
+
+        username = request.form["username"]
+        if username not in all_users:
+            return render_template("login_page.html", error=True)
+        user = all_users[username]
+
+        if not user.check_password(request.form["password"]):
+            return render_template("login_page.html", error=True)
+
+        login_user(user)
+        return redirect(url_for('index'))
+
+
+    @app.route("/logout/")
+    @login_required
+    def logout():
+        logout_user()
+        return redirect(url_for('index'))
+
+
+The main page template:
+
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+            <title>My scratchboard page</title>
+        </head>
+
+        <body>
+            <nav class="navbar navbar-inverse">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">My scratchpad</a>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Log in</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+
+
+            <div class="container">
+                {% for comment in comments %}
+                    <div class="row">
+                        {{ comment.content }}
+                    </div>
+                {% endfor %}
+
+                {% if current_user.is_authenticated %}
+                    <div class="row">
+                        <form action="." method="POST">
+                            <textarea name="contents" placeholder="Enter a comment" class="form-control"></textarea>
+                            <input type="submit" class="btn btn-success" value="Post comment">
+                        </form>
+                    </div>
+                {% endif %}
+            </div><!-- /.container -->
+
+        </body>
+    </html>
+
+
+The login page template:
+
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+            <title>My scratchboard page: log in</title>
+        </head>
+
+        <body>
+            <nav class="navbar navbar-inverse">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">My scratchpad: login page</a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container">
+
+                <div class="row">
+                    {% if error %}
+                        <div class="alert alert-warning" role="alert">
+                            Incorrect username or password
+                        </div>
+                    {% endif %}
+                    <form action="." method="POST">
+                      <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input class="form-control" id="username" name="username" placeholder="Enter your username">
+                      </div>
+                      <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
+                      </div>
+                      <button type="submit" class="btn btn-success">Log in</button>
+                    </form>
+                </div>
+
+            </div>
+
+        </body>
+    </html>
+
 That's definitely worthy of a commit!  We have a secure-looking site.  Head over to the bash console, `git add`,
 `git commit`, you know the drill by now :-)
 
@@ -502,7 +717,7 @@ backend security.  Front-end security just makes the site look secure -- which i
 but it's the security that you build into your Flask views that matters.
 
 Commit those changes, and -- if you like -- switch off the password
-protection at the bottom of the "Web" tab inside PythonAnywhere -- we have something better now, so we don't need it.
+protection at the bottom of the "Web" page inside PythonAnywhere -- we have something better now, so we don't need it.
 You'll need to reload the website using the green button once you've switched it off.
 
 
@@ -683,7 +898,7 @@ minimal virtualenv:
 
 So, we have a virtualenv.  But our website is still using the packages that were installed system-wide, so
 it's not being used.  The next step is to fix that.  Open a new tab by right-clicking the PythonAnywhere logo,
-and go to the "Web" tab.   Make sure that your website is selected, then scroll down a bit.   You'll see a
+and go to the "Web" page.   Make sure that your website is selected, then scroll down a bit.   You'll see a
 section with the header "Virtualenv":
 
 <img width="500" src="/static/images/flask-tutorial-virtualenv-unset.png">
@@ -719,7 +934,7 @@ output to a file:
     pip freeze > requirements.txt
 
 If all goes well, that command will just send you back to the prompt.   Now, open another tab by right-clicking
-the PythonAnywhere logo, and go to the "Files" tab, then down into the `mysite` directory.  You'll see the file
+the PythonAnywhere logo, and go to the "Files" page, then down into the `mysite` directory.  You'll see the file
 `requirements.txt` -- click on it to load it into the editor.  You should see the same list of dependencies you
 did before.
 
@@ -822,7 +1037,7 @@ tutorial!   Don't worry, it gets easier.)*
 However, there is a way -- what we want to do is tell it to compare the current code with an empty database, and
 generate a migration that would create the appropriate structure in that database.
 
-To do this, go to the PythonAnywhere "Databases" tab in a new browser tab, and create a new database called
+To do this, go to the PythonAnywhere "Databases" page in a new browser tab, and create a new database called
 `dummyempty`.  (In the unlikely event that you already have one with that name, just pick something else.)
 
 Next, temporarily, we'll tell our Flask code to use the dummyempty database.  Go to the tab where your Python
@@ -857,7 +1072,7 @@ So now we have a migration file that contains Python code that knows how
 to create our database structure from scratch.   It's worth noting that the file *only* contains information about
 the database structure -- that is, there's a table called `comments` that has certain specific columns.  It doesn't
 contain the comments themselves.  Take a look at the file -- it was the last thing printed out by the `flask db migrate` command, and you can
-load it up into the editor via the "Files" tab.   It will look something like this:
+load it up into the editor via the "Files" page.   It will look something like this:
 
     """empty message
 
@@ -1069,7 +1284,7 @@ This is the last step; we want to store who it was that made each comment.   Now
 it would be really easy to add a string column to the database, and copy the username of the currently
 logged in user over into it when a comment was posted.   But where's the fun in that?  Much too easy.
 And also bad database design; right now we have this rather hacky setup where users are defined in the
-code; like I said earlier, users should be kept in the database -- and if there are user objects
+code.  Like I said earlier, users should be kept in the database -- and if there are user objects
 in the database, then it makes sense if each comment has a reference to the user object that created it,
 surely :-)
 
@@ -1240,6 +1455,237 @@ All fairly easy, right?  Well, hopefully not horrendously difficult.  Setting up
 Flask-Migrate did take a bit of time and effort
 (you can probably see why we didn't include them in the first tutorial -- it's too much to dump on someone
 when they're a complete beginner), but it does pay off quickly.
+
+As before, if you hit any problems, then try to debug it. The error log is your friend!  But if you find
+yourself completely stuck, here's what you should have at this point:
+
+The Python code:
+
+    from datetime import datetime
+    from flask import Flask, redirect, render_template, request, url_for
+    from flask_login import current_user, login_required, login_user, LoginManager, logout_user, UserMixin
+    from flask_migrate import Migrate
+    from flask_sqlalchemy import SQLAlchemy
+    from werkzeug.security import check_password_hash
+
+
+    app = Flask(__name__)
+    app.config["DEBUG"] = True
+
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+        username="SOMETHING",
+        password="SOMETHINGELSE",
+        hostname="SOMETHING.mysql.pythonanywhere-services.com",
+        databasename="SOMETHING$comments",
+    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+    app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db = SQLAlchemy(app)
+    migrate = Migrate(app, db)
+
+    app.secret_key = "SOMETHING RANDOM"
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+
+    class User(UserMixin, db.Model):
+
+        __tablename__ = "users"
+
+        id = db.Column(db.Integer, primary_key=True)
+        username = db.Column(db.String(128))
+        password_hash = db.Column(db.String(128))
+
+        def check_password(self, password):
+            return check_password_hash(self.password_hash, password)
+
+
+        def get_id(self):
+            return self.username
+
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.filter_by(username=user_id).first()
+
+
+    class Comment(db.Model):
+
+        __tablename__ = "comments"
+
+        id = db.Column(db.Integer, primary_key=True)
+        content = db.Column(db.String(4096))
+        posted = db.Column(db.DateTime, default=datetime.now)
+        commenter_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+        commenter = db.relationship('User', foreign_keys=commenter_id)
+
+
+    @app.route("/", methods=["GET", "POST"])
+    def index():
+        if request.method == "GET":
+            return render_template("main_page.html", comments=Comment.query.all())
+
+        if not current_user.is_authenticated:
+            return redirect(url_for('index'))
+
+        comment = Comment(content=request.form["contents"], commenter=current_user)
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for('index'))
+
+
+
+    @app.route("/login/", methods=["GET", "POST"])
+    def login():
+        if request.method == "GET":
+            return render_template("login_page.html", error=False)
+
+        user = load_user(request.form["username"])
+        if user is None:
+            return render_template("login_page.html", error=True)
+
+        if not user.check_password(request.form["password"]):
+            return render_template("login_page.html", error=True)
+
+        login_user(user)
+        return redirect(url_for('index'))
+
+
+
+    @app.route("/logout/")
+    @login_required
+    def logout():
+        logout_user()
+        return redirect(url_for('index'))
+
+The login page template:
+
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+            <title>My scratchboard page: log in</title>
+        </head>
+
+        <body>
+            <nav class="navbar navbar-inverse">
+              <div class="container">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="#">My scratchpad: login page</a>
+                </div>
+              </div>
+            </nav>
+
+            <div class="container">
+
+                <div class="row">
+                    {% if error %}
+                        <div class="alert alert-warning" role="alert">
+                            Incorrect username or password
+                        </div>
+                    {% endif %}
+                    <form action="." method="POST">
+                      <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input class="form-control" id="username" name="username" placeholder="Enter your username">
+                      </div>
+                      <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
+                      </div>
+                      <button type="submit" class="btn btn-success">Log in</button>
+                    </form>
+                </div>
+
+            </div>
+
+        </body>
+    </html>
+
+The main page template:
+
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+            <title>My scratchboard page</title>
+        </head>
+
+        <body>
+            <nav class="navbar navbar-inverse">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">My scratchpad</a>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Log in</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+
+
+            <div class="container">
+                {% for comment in comments %}
+                    <div class="row" style="margin-bottom: 1ex">
+                        <div>
+                            {{ comment.content }}
+                        </div>
+                        <div>
+                            <small>
+                                Posted
+                                {% if comment.posted %}
+                                    {{ comment.posted.strftime("%A, %d %B %Y at %H:%M") }}
+                                {% else %}
+                                    at an unknown time
+                                {% endif %}
+                                by
+                                {% if comment.commenter %}
+                                    {{ comment.commenter.username }}
+                                {% else %}
+                                    anonymous
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% if current_user.is_authenticated %}
+                    <div class="row">
+                        <form action="." method="POST">
+                            <textarea name="contents" placeholder="Enter a comment" class="form-control"></textarea>
+                            <input type="submit" class="btn btn-success" value="Post comment">
+                        </form>
+                    </div>
+                {% endif %}
+            </div><!-- /.container -->
+
+        </body>
+    </html>
+
 
 So, there's just one more thing to do:
 
