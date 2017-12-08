@@ -16,13 +16,23 @@ We assume that you've got a little bit of basic Python and HTML knowledge -- for
 
 Firstly, [create a PythonAnywhere account](https://www.pythonanywhere.com/pricing/) if you haven't already.  A free "Beginner" account is enough for this tutorial.
 
-Once you've signed up, you'll be taken to the "Consoles" tab:
+Once you've signed up, you'll be taken to the dashboard, with a tour window.  It's worth going through
+the tour so that you can learn how the site works -- it'll only take a minute or so.
 
 <img width="500" src="/static/images/flask-tutorial-signed-in.png">
 
-You can dismiss the green welcome section at the top (use the "X" in its top right) -- everything there is accessible later from the "Help" link if you want to see it.  I do recommend you check your email and confirm your email address, though -- otherwise if you forget your password later, you won't be able to reset it.
+At the end of the tour you'll be presented with some options to "learn more".  You can just iht "End tour" here,
+because this tutorial will tell you all you need to know.
 
-Now, click on the "Web" tab, and you'll be taken to a page where you can create a website:
+<img width="500" src="/static/images/flask-tutorial-tour-learn-more.png">
+
+Now you're presented with the PythonAnywhere dashboard.  I recommend you check your email and confirm your email address --
+otherwise if you forget your password later, you won't be able to reset it.
+
+<img width="500" src="/static/images/flask-tutorial-initial-dashboard.png">
+
+
+Now, click on the "Web" link near the top right, and you'll be taken to a page where you can create a website:
 
 <img width="500" src="/static/images/flask-tutorial-web-tab-empty.png">
 
@@ -211,7 +221,7 @@ So let's add some code to handle the "/wibble" version.  Just put this at the bo
 
 Click the "Save" button again, then the reload button, and check out your site on the tab you kept open earlier.  Now, both `http://`*yourusername*`.pythonanywhere.com/` and `http://`*yourusername*`.pythonanywhere.com/wibble` will work, and will return different text.
 
-So that was our first change, but it was pretty pointless.  Let's use git to undo it.  Click on the PythonAnywhere logo at the top right of the editor page, and you'll be taken to the main PythonAnywhere "Consoles" list.  You'll see that under "Your consoles" there's a thing called something like "Bash console 5676757".
+So that was our first change, but it was pretty pointless.  Let's use git to undo it.  Click on the PythonAnywhere logo at the top left of the editor page, and you'll be taken to the main PythonAnywhere dashboard.  You'll see that under "Recent Consoles" there's a thing called something like "Bash console 5676757".
 
 <img width="500" src="/static/images/flask-tutorial-consoles-list.png">
 
@@ -240,7 +250,7 @@ Run `git status` again, and you'll see that it no longer sees that file as chang
     On branch master
     nothing to commit, working directory clean
 
-Let's confirm that our change really was un-done.  Click the PythonAnywhere logo again, then click on the "Files" tab next to the "Consoles" one.  That will take you to a directory listing for your home directory.  From there, click on the directory containing the code for your website (`mysite` if you stuck with the default) and you'll get a directory listing for that, which should contain the `flask_app.py` file.  Click on that, and you'll be taken to the editor again, and you'll see that the pointless change has been backed out for us.
+Let's confirm that our change really was un-done.  Click the PythonAnywhere logo again, then click on the `flask_app.py` file in the "Recent Files" list next to the "Recent Consoles" one.  You'll be taken to the editor again, and you'll see that the pointless change has been backed out for us.
 
 Hopefully that was at least instructive in showing how you can easily back out changes if you make a mess of your program while developing :-)
 
@@ -252,7 +262,7 @@ A web app in Flask, like most frameworks, consists of two kinds of file: source 
 
 Our website is just going to be a bunch of comments, one after another, with a text box at the bottom so that people can add new ones.  So we'll start off by writing a template that displays some dummy data, and a view in the Python code that renders (that is, displays) the template.
 
-The template first.  Click on the back button to get to your web app's source code directory listing page.  Templates, by convention, go in a subdirectory of your source code directory, inventively called `templates`.  So we can create that by typing "templates" into the "Enter new directory name" input near the top of the page, then clicking the "New directory" button next to it.  That will take us to the directory listing for the new directory, which of course is empty.  We'll create our template file in there; type "main_page.html" into the "Enter new file name" input, and click the "New file" button next to it.  This will take you to the editor, which will be empty.
+The template first.  Click on `mysite` in the breadcrumb trail (remember, that's the stuff separated by slashes at the top of the editor page), to get to your web app's source code directory listing page.  Templates, by convention, go in a subdirectory of your source code directory, inventively called `templates`.  So we can create that by typing "templates" into the "Enter new directory name" input near the top of the page, then clicking the "New directory" button next to it.  That will take us to the directory listing for the new directory, which of course is empty.  We'll create our template file in there; type "main_page.html" into the "Enter new file name" input, and click the "New file" button next to it.  This will take you to the editor, which will be empty.
 
 Type the following HTML into the editor:
 
@@ -286,7 +296,7 @@ Type the following HTML into the editor:
         </body>
     </html>
 
-Save it, and go back to the source code directory (you can use the breadcrumbs at the top of the page -- remember, they're the things separated by "/"s) and edit your source code file.  We need to change it so that it renders that template.  To do that, replace the existing view, which looks like this:
+Save it, and go back to the source code directory `mysite` using the breadcrumbs, and edit your source code file `flask_app.py`.  We need to change it so that it renders that template.  To do that, replace the existing view, which looks like this:
 
     @app.route('/')
     def hello_world():
@@ -316,7 +326,7 @@ Now, save the file, reload the website, and refresh it in your other tab.  It'll
 
 That's pretty ugly, but it has our stuff from the template -- it all worked :-)
 
-Let's take another checkpoint using git.  This time, to save us from having to click around all the time, we'll open up our bash console in a new browser tab.  Go back to your source code editor tab, right-click the PythonAnywhere logo, and select the option to open the link in a new tab.  In the new tab, click on the "Bash console" link under "Your consoles".  You should now have three tabs open -- the one where you're editing your source code, the one with the bash console, and the one viewing your site.
+Let's take another checkpoint using git.  This time, to save us from having to click around all the time, we'll open up our bash console in a new browser tab.  Go back to your source code editor tab, right-click the PythonAnywhere logo, and select the option to open the link in a new tab.  In the new tab, click on the "Bash console XXXX" link (where XXXX is some number) under "Recent consoles".  You should now have three tabs open -- the one where you're editing your source code, the one with the bash console, and the one viewing your site.
 
 In the bash console, type `git status`.  It will say something like this:
 
@@ -717,7 +727,7 @@ Once again, run `git status` to confirm that everything's now properly synchroni
 
 So, we have a page where random people on the Internet can add comments.  We all know what the Internet is like, and this is going to fill up with ads for fake Rolexes and dodgy pharmaceuticals pretty rapidly if we leave it open to the world.  So let's add some password protection.  PythonAnywhere provides this for us.
 
-To activate it, go to any of your tabs, right-click the PythonAnywhere to open the consoles page in a new browser tab, then click on the "Web" tab.  Make sure your website is selected on the left-hand side, then scroll to the bottom of the page.  Just above the big red "delete" button there's a section titled "Password protection".  Enter a username and a password here, and switch the toggle above those fields to "Enabled".  Scroll up to the top of the page again, and click the big green "Reload" button.
+To activate it, go to any of your tabs, right-click the PythonAnywhere to open the consoles page in a new browser tab, then click on the "Web" link near the top right.  Make sure your website is selected on the left-hand side, then scroll to the bottom of the page.  Just above the big red "delete" button there's a section titled "Password protection".  Enter a username and a password here, and switch the toggle above those fields to "Enabled".  Scroll up to the top of the page again, and click the big green "Reload" button.
 
 Now head over to the tab where you're viewing your website, and refresh the page.  This time you should be prompted for a password.  You only need to enter it this one time for this browser session, so it won't get in our way later on -- but it will keep the spammers at bay...  Once this is all done, you can close the browser tab where you set the password.
 
@@ -738,11 +748,11 @@ SQLite is pretty slow on PythonAnywhere, and doesn't scale well for larger sites
 
 One convenient thing about modern database programming, however, is that to a certain degree you don't need to worry about which database you're actually using.  There are database interface libraries called Object-Relational Mappers (ORMs), which make it possible (most of the time) to use the same code regardless of the underlying database.  We're going to use one called SQLAlchemy, which works well with Flask.
 
-Right, enough background.  Let's create a MySQL database!  In your tab where you're editing the Python source code, right-click on the PythonAnywhere logo and open the page in a new tab.  On the "Consoles" page that appears, click on the "Databases" tab to the far right.  You'll wind up here:
+Right, enough background.  Let's create a MySQL database!  In your tab where you're editing the Python source code, right-click on the PythonAnywhere logo and open the page in a new tab.  On the dashboard page that appears, click on the "Databases" link near the top right.  You'll wind up here:
 
 <img width="500" src="/static/images/flask-tutorial-databases-tab-empty.png">
 
-The first thing you need to do to set up a MySQL database is specify the password you want to use when accessing it.  Enter a new password here; make it something different to the one you use to log in to PythonAnywhere, because this database password will have to exist in your Python code (so that it can connect to your server), so it's more secure to use a different one.  Make a note of the password you've chosen, and once you've entered it twice in the appropriate fields, click the "Initialize MySQL" button.  Wait for a few moments for your database to be set up, and you'll come back to the "Databases" tab, but now some extra options will have appeared:
+The first thing you need to do to set up a MySQL database is specify the password you want to use when accessing it.  Enter a new password here; make it something different to the one you use to log in to PythonAnywhere, because this database password will have to exist in your Python code (so that it can connect to your server), so it's more secure to use a different one.  Make a note of the password you've chosen, and once you've entered it twice in the appropriate fields, click the "Initialize MySQL" button.  Wait for a few moments for your database to be set up, and you'll come back to the "Databases" page, but now some extra options will have appeared:
 
 <img width="500" src="/static/images/flask-tutorial-databases-tab-after-set-password.png">
 
@@ -804,7 +814,7 @@ Next, we need to add a *model*.  A model is a Python class that specifies the st
         id = db.Column(db.Integer, primary_key=True)
         content = db.Column(db.String(4096))
 
-An SQL database can seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll keep for housekeeping purposes later on, and a string `content`, which holds, of course, the contents of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.
+An SQL database can seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll use for housekeeping purposes later on, and a string `content`, which holds, of course, the contents of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.
 [The second part of our tutorial](https://blog.pythonanywhere.com/158/) covers that.)
 
 Now that we've defined our model, we need to get SQLAlchemy to create the database tables.  This is a one-off operation -- once we've created the database's structure, it's done.  Save your Python file, then head over to the bash console we've been using so far for git stuff, and run `ipython3.6` to start a Python interpreter.
@@ -819,7 +829,7 @@ Now, we want to create the tables.  This is really easy:
 
 <img width="500" src="/static/images/flask-tutorial-sqlalchemy-create-all.png">
 
-Once you've done that, the table has been created in the database.  Let's confirm that.  Go to the tab you kept open that's showing the "Databases" PythonAnywhere tab, and click on your database name (*yourusername*`$comments`).  This will start a new console, running the MySQL command line.  Once it has loaded (it will show a `mysql>` prompt), run the command:
+Once you've done that, the table has been created in the database.  Let's confirm that.  Go to the tab you kept open that's showing the "Databases" PythonAnywhere page, and click on your database name (*yourusername*`$comments`).  This will start a new console, running the MySQL command line.  Once it has loaded (it will show a `mysql>` prompt), run the command:
 
     show tables;
 
