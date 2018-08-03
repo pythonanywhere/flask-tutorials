@@ -468,7 +468,7 @@ messages, take a look at the error log -- there's a link on the "Web" page insid
 
 Inside the error log, the most recent error message will be at the bottom.
 
-If you can't get it to work, then here's the code that you should have now for you to copy/paste:
+If you can't get it to work, then here's the code that you should have now for you to copy/paste (though you'll need to update the database connection URI to match your own database settings):
 
 The Python code:
 
@@ -481,10 +481,10 @@ The Python code:
     app.config["DEBUG"] = True
 
     SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-        username="flasksimpletutor",
-        password="mysql123",
-        hostname="flasksimpletutorial.mysql.pythonanywhere-services.com",
-        databasename="flasksimpletutor$comments",
+        username="SOMETHING",
+        password="SOMETHINGELSE",
+        hostname="SOMETHING.mysql.pythonanywhere-services.com",
+        databasename="SOMETHING$comments",
     )
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
