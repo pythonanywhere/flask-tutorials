@@ -100,7 +100,7 @@ This creates a Flask application to run your code.
 
     @app.route('/')
 
-This decorator specifies that the following method defines what happens when someone goes to the location "/" on your site -- eg. if they go to `http://`*yourusername*`.pythonanywhere.com/`.  If you wanted to define what happens when they go to `http://`*yourusername*`.pythonanywhere.com/foo` then you'd use `@app.route('/foo')` instead.
+This decorator specifies that the following function defines what happens when someone goes to the location "/" on your site -- eg. if they go to `http://`*yourusername*`.pythonanywhere.com/`.  If you wanted to define what happens when they go to `http://`*yourusername*`.pythonanywhere.com/foo` then you'd use `@app.route('/foo')` instead.
 
     def hello_world():
         return 'Hello from Flask!'
