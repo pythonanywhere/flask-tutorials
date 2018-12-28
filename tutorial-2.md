@@ -1706,7 +1706,7 @@ You're now ready to start coding proper Flask apps -- congratulations :-)
 
 If you'd like to study further, and find out more about Flask, I recommend these tutorials:
 
- * [The official Flask tutorial](http://flask.pocoo.org/docs/0.10/tutorial/)
+ * [The official Flask tutorial](http://flask.pocoo.org/docs/1.0/tutorial/#tutorial)
  * [The Flask Mega-tutorial](http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
 
 We hope you've found this tutorial useful, and if there's anything that confused you,
