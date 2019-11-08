@@ -634,7 +634,7 @@ In their place, we'll put a loop in the Flask template language that will iterat
 
 This should be pretty clear.  Commands in the Flask template language, like `for` and `endfor` go inside `{%`..`%}`, and then you can also use `{{`..`}}` and a variable to insert the value of the variable at the current point.
 
-Now, save the file, and go to the tab showing your site.  Hit the page refresh button -- you'll see that the dummy comments have gone, and if you posted some comments while you were trying it out before you updated the template, you'll see those have been added instead!  Try adding a new new comments; they'll appear as soon as you post them.
+Now, save the file, and go to the tab showing your site.  Hit the page refresh button -- you'll see that the dummy comments have gone, and if you posted some comments while you were trying it out before you updated the template, you'll see those have been added instead!  Try adding a few new comments; they'll appear as soon as you post them.
 
 <img width="500" src="/static/images/flask-tutorial-app-with-in-memory-comments.png">
 
@@ -727,7 +727,7 @@ Once again, run `git status` to confirm that everything's now properly synchroni
 
 So, we have a page where random people on the Internet can add comments.  We all know what the Internet is like, and this is going to fill up with ads for fake Rolexes and dodgy pharmaceuticals pretty rapidly if we leave it open to the world.  So let's add some password protection.  PythonAnywhere provides this for us.
 
-To activate it, go to any of your tabs, right-click the PythonAnywhere to open the consoles page in a new browser tab, then click on the "Web" link near the top right.  Make sure your website is selected on the left-hand side, then scroll to the bottom of the page.  Just above the big red "delete" button there's a section titled "Password protection".  Enter a username and a password here, and switch the toggle above those fields to "Enabled".  Scroll up to the top of the page again, and click the big green "Reload" button.
+To activate it, go to any of your tabs, right-click the PythonAnywhere to open the dashboard in a new browser tab, then click on the "Web" link near the top right.  Make sure your website is selected on the left-hand side, then scroll to the bottom of the page.  Just above the big red "delete" button there's a section titled "Password protection".  Enter a username and a password here, and switch the toggle above those fields to "Enabled".  Scroll up to the top of the page again, and click the big green "Reload" button.
 
 Now head over to the tab where you're viewing your website, and refresh the page.  This time you should be prompted for a password.  You only need to enter it this one time for this browser session, so it won't get in our way later on -- but it will keep the spammers at bay...  Once this is all done, you can close the browser tab where you set the password.
 
@@ -774,16 +774,16 @@ OK, so now we have a database.  Let's add some code to connect to it!  Leave the
 ...add the following code to configure the database connection:
 
     SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-        username="<the username from the 'Databases' tab>",
-        password="<the password you set on the 'Databases' tab>",
-        hostname="<the database host address from the 'Databases' tab>",
-        databasename="<the database name you chose, probably yourusername$comments>",
+        username="the username from the 'Databases' tab",
+        password="the password you set on the 'Databases' tab",
+        hostname="the database host address from the 'Databases' tab",
+        databasename="the database name you chose, probably yourusername$comments",
     )
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-You need to change the values we set for `username`, `hostname` and `databasename` to the values from the "Databases" tab, and change the `password` to the one you set there earlier.  (All of these are without the `<>` angle brackets, of course -- those are just there in the code above to highlight things you need to change.)
+You need to change the values we set for `username`, `hostname` and `databasename` to the values from the "Databases" tab, and change the `password` to the one you set there earlier.
 
 The first of these commands sets a variable to the specifically-formatted string SQLAlchemy needs to connect to your database.  The second stashes that away in Flask's application configuration settings.
 
@@ -814,7 +814,7 @@ Next, we need to add a *model*.  A model is a Python class that specifies the st
         id = db.Column(db.Integer, primary_key=True)
         content = db.Column(db.String(4096))
 
-An SQL database can be seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll use for housekeeping purposes later on, and a string `content`, which holds, of course, the contents of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.
+An SQL database can be seen as something similar to a spreadsheet; you have a number of *tables*, just like a spreadsheet has a number of sheets inside it.  Each table can be thought of as a place to store a specific kind of thing; on the Python side, each one would be represented by a separate class.  We have only one kind of thing to store, so we are going to have just one table, called "comments".  Each table is formed of rows and columns.  Each row corresponds to an entry in the database -- in our simple example, each comment would be a row.  On the Python side, this basically means one row per object stored.  The columns are the attributes of the class, and are pretty much fixed; for our database, we're specifying two columns: an integer `id`, which we'll use for housekeeping purposes later on, and a string `content`, which holds, of course, the content of the comment.  If we wanted to add more stuff to comments in the future -- say, the author's name -- we'd need to add extra columns for those things.  (Changing the MySQL database structure to add more columns can be tricky; the process is called *migrating* the database.
 [The second part of our tutorial](https://blog.pythonanywhere.com/158/) covers that.)
 
 Now that we've defined our model, we need to get SQLAlchemy to create the database tables.  This is a one-off operation -- once we've created the database's structure, it's done.  Save your Python file, then head over to the bash console we've been using so far for git stuff, and run `ipython3.6` to start a Python interpreter.
@@ -905,6 +905,96 @@ In lovely 1970s-style ASCII-art table graphics, you'll get the contents of your 
     |  1 | This is my first comment for the database |
     +----+-------------------------------------------+
     1 row in set (0.00 sec)
+
+
+Once again, if things don't work, try to debug it.  Check for typos in your code, and see if there are any errors displayed.  If the worst comes to the worst and you really can't work out what you mis-typed, here's the code that you should have:
+
+Python:
+
+    from flask import Flask, redirect, render_template, request, url_for
+    from flask_sqlalchemy import SQLAlchemy
+
+    app = Flask(__name__)
+    app.config["DEBUG"] = True
+
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
+        username="the username from the 'Databases' tab",
+        password="the password you set on the 'Databases' tab",
+        hostname="the database host address from the 'Databases' tab",
+        databasename="the database name you chose, probably yourusername$comments",
+    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+    app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    db = SQLAlchemy(app)
+
+    class Comment(db.Model):
+
+        __tablename__ = "comments"
+
+        id = db.Column(db.Integer, primary_key=True)
+        content = db.Column(db.String(4096))
+
+
+    @app.route("/", methods=["GET", "POST"])
+    def index():
+        if request.method == "GET":
+            return render_template("main_page.html", comments=Comment.query.all())
+
+        comment = Comment(content=request.form["contents"])
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for('index'))
+
+HTML template:
+
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+            <title>My scratchboard page</title>
+        </head>
+
+        <body>
+            <nav class="navbar navbar-inverse">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">My scratchpad</a>
+                    </div>
+                </div>
+            </nav>
+
+
+            <div class="container">
+                {% for comment in comments %}
+                    <div class="row">
+                        {{ comment.content }}
+                    </div>
+                {% endfor %}
+
+                <div class="row">
+                    <form action="." method="POST">
+                        <textarea name="contents" placeholder="Enter a comment" class="form-control"></textarea>
+                        <input type="submit" class="btn btn-success" value="Post comment">
+                    </form>
+                </div>
+
+            </div><!-- /.container -->
+        </body>
+    </html>
+
+
+## Conclusion
 
 So now we have a website that will allow people to enter random comments, and will remember them even if the website is reloaded.  Everything has been coded in Flask, and the data is stored in MySQL using SQLAlchemy.  One last thing before we can call this done, though -- go over to the console where you've been running git, and do one last git commit:
 
